@@ -1,0 +1,35 @@
+package SpringClass.shop.controller;
+
+import SpringClass.shop.dto.ProductListDTO;
+import SpringClass.shop.dto.ProductRequest;
+import SpringClass.shop.dto.ProductResponse;
+import SpringClass.shop.global.ApiResponse;
+import SpringClass.shop.service.ProductService;
+import io.swagger.v3.oas.annotations.Operation;
+import lombok.AllArgsConstructor;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@AllArgsConstructor
+@RequestMapping("/api/products")
+public class ProductController {
+    private final ProductService productService;
+
+    @PostMapping
+    @Operation(summary = "상품등록", description = "상품등록 시 사용하는 API 입니다.")
+    public ResponseEntity<ApiResponse<ProductResponse>> createProduct(@RequestBody ProductRequest request) {
+        ProductResponse result = productService.createProduct(request);
+        return ResponseEntity.ok(ApiResponse.ok(result, "등록되었습니다."));
+    }
+    @GetMapping
+    @Operation(summary = "전체 상품 조회", description = "전체상품 조회 시 사용하는 API 입니다.")
+    public ResponseEntity<ApiResponse<List<ProductListDTO>>> getProducts
+            (@RequestParam(required = false) String category) {
+        List<ProductListDTO> result = productService.getProducts(category);
+        return ResponseEntity.ok(ApiResponse.ok(result, "조회되었습니다."));
+    }
+
+}

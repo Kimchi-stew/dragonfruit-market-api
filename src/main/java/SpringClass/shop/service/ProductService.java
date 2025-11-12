@@ -1,0 +1,115 @@
+package SpringClass.shop.service;
+
+import SpringClass.shop.dto.ProductListDTO;
+import SpringClass.shop.dto.ProductRequest;
+import SpringClass.shop.dto.ProductResponse;
+import SpringClass.shop.dto.SellerSummaryDTO;
+import SpringClass.shop.entity.Products.ProductImages;
+import SpringClass.shop.entity.Products.Products;
+import SpringClass.shop.entity.Sellers;
+import SpringClass.shop.entity.Users;
+import SpringClass.shop.exceptions.SellerNotFoundException;
+import SpringClass.shop.repository.ProductsRepository;
+import SpringClass.shop.repository.SellersRepository;
+import SpringClass.shop.security.AuthenticatedUserUtils;
+import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Service
+@RequiredArgsConstructor
+public class ProductService {
+    private final AuthenticatedUserUtils authenticatedUserUtils;
+    private final SellersRepository sellersRepository;
+    private final ProductsRepository productsRepository;
+
+    public ProductResponse createProduct(ProductRequest request) {
+        // user 정보 가져오기 (baarer token에서 추출)
+        Users user = authenticatedUserUtils.getCurrentUser();
+
+        // 판매자(상점) 등록을 안 하면 오류
+        Sellers seller = sellersRepository.findByUser(user)
+                .orElseThrow(() -> new SellerNotFoundException("판매자를 찾을 수 없습니다."));
+
+        Products products = Products.builder()
+                .name(request.getName())
+                .seller(seller)
+                .price(request.getPrice())
+                .description(request.getDescription())
+                .stock(request.getStock())
+                .createdAt(LocalDateTime.now())
+                .build();
+
+        // 이미지 변환 및 저장
+        if (request.getImages() != null && !request.getImages().isEmpty()) {
+            List<ProductImages> imageEntities = request.getImages().stream()
+                    .map(url -> ProductImages.builder()
+                            .product(products) // 관계 연결
+                            .imageUrl(url)
+                            .createdAt(LocalDateTime.now())
+                            .updatedAt(LocalDateTime.now())
+                            .build())
+                    .collect(Collectors.toList());
+
+            products.setImages(imageEntities);
+        }
+
+        Products savedProduct = productsRepository.save(products);
+
+        return ProductResponse.builder()
+                .id(savedProduct.getId())
+                .seller(SellerSummaryDTO.builder()
+                        .id(savedProduct.getSeller().getId())
+                        .storeName(savedProduct.getSeller().getStoreName())
+                        .image(savedProduct.getSeller().getImage())
+                        .build())
+                .name(savedProduct.getName())
+                .price(savedProduct.getPrice())
+                .description(savedProduct.getDescription())
+                .stock(savedProduct.getStock())
+                .images(savedProduct.getImages().stream()
+                        .map(ProductImages::getImageUrl)
+                        .collect(Collectors.toList()))
+                .createdAt(savedProduct.getCreatedAt())
+                .updatedAt(savedProduct.getUpdatedAt())
+                .build();
+    }
+
+    public List<ProductListDTO> getProducts(String category) {
+        List<Products> products;
+        // 가격 낮은순 + (최신순)
+        if ("asc".equalsIgnoreCase(category)) {
+            products = productsRepository.findAllByOrderByPriceAscCreatedAtDesc();
+        } // 고가순 + (최신순)
+        else if ("desc".equalsIgnoreCase(category)) {
+            products = productsRepository.findAllByOrderByPriceDescCreatedAtDesc();
+        } else {
+            // 기본값 - 최신순
+            products = productsRepository.findAllByOrderByCreatedAtDesc();
+        }
+
+        return products.stream().map(product -> {
+            String mainImage = null;
+            if (product.getImages() != null && !product.getImages().isEmpty()) {
+                mainImage = product.getImages().get(0).getImageUrl(); // 첫 번째 이미지
+            }
+
+            return ProductListDTO.builder()
+                    .id(product.getId())
+                    .seller(SellerSummaryDTO.builder()
+                            .id(product.getSeller().getId())
+                            .storeName(product.getSeller().getStoreName())
+                            .image(product.getSeller().getImage())
+                            .build())
+                    .name(product.getName())
+                    .price(product.getPrice())
+                    .image(mainImage)
+                    .build();
+        }).collect(Collectors.toList());
+    }
+
+
+}
