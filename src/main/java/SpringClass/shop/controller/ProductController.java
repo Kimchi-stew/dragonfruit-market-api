@@ -1,6 +1,7 @@
 package SpringClass.shop.controller;
 
 import SpringClass.shop.dto.ProductListDTO;
+import SpringClass.shop.dto.CreateProductDTO;
 import SpringClass.shop.dto.ProductRequest;
 import SpringClass.shop.dto.ProductResponse;
 import SpringClass.shop.global.ApiResponse;
@@ -20,7 +21,7 @@ public class ProductController {
 
     @PostMapping
     @Operation(summary = "상품등록", description = "상품등록 시 사용하는 API 입니다.")
-    public ResponseEntity<ApiResponse<ProductResponse>> createProduct(@RequestBody ProductRequest request) {
+    public ResponseEntity<ApiResponse<ProductResponse>> createProduct(@RequestBody CreateProductDTO request) {
         ProductResponse result = productService.createProduct(request);
         return ResponseEntity.ok(ApiResponse.ok(result, "등록되었습니다."));
     }
@@ -30,6 +31,13 @@ public class ProductController {
             (@RequestParam(required = false) String category) {
         List<ProductListDTO> result = productService.getProducts(category);
         return ResponseEntity.ok(ApiResponse.ok(result, "조회되었습니다."));
+    }
+
+    @PutMapping
+    @Operation(summary = "상품수정", description = "상품수정 시 사용하는 API 입니다.")
+    public ResponseEntity<ApiResponse<ProductResponse>> patchProduct(@RequestBody ProductRequest request) {
+        ProductResponse result = productService.patchProduct(request);
+        return ResponseEntity.ok(ApiResponse.ok(result, "수정되었습니다."));
     }
 
 }

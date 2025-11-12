@@ -8,11 +8,11 @@ import java.util.List;
 
 @Getter
 @Setter
-public class ProductRequest {
-    private Long id;
+public class CreateProductDTO {
     private String name;
     private BigDecimal price;
     private String description;
     private Integer stock;
     private List<String> images;
+
 }

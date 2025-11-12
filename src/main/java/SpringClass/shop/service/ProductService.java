@@ -1,13 +1,12 @@
 package SpringClass.shop.service;
 
-import SpringClass.shop.dto.ProductListDTO;
-import SpringClass.shop.dto.ProductRequest;
-import SpringClass.shop.dto.ProductResponse;
-import SpringClass.shop.dto.SellerSummaryDTO;
+import SpringClass.shop.dto.*;
 import SpringClass.shop.entity.Products.ProductImages;
 import SpringClass.shop.entity.Products.Products;
 import SpringClass.shop.entity.Sellers;
 import SpringClass.shop.entity.Users;
+import SpringClass.shop.exceptions.ForbiddenException;
+import SpringClass.shop.exceptions.ProductNotFoundException;
 import SpringClass.shop.exceptions.SellerNotFoundException;
 import SpringClass.shop.repository.ProductsRepository;
 import SpringClass.shop.repository.SellersRepository;
@@ -26,7 +25,7 @@ public class ProductService {
     private final SellersRepository sellersRepository;
     private final ProductsRepository productsRepository;
 
-    public ProductResponse createProduct(ProductRequest request) {
+    public ProductResponse createProduct(CreateProductDTO request) {
         // user 정보 가져오기 (baarer token에서 추출)
         Users user = authenticatedUserUtils.getCurrentUser();
 
@@ -109,6 +108,57 @@ public class ProductService {
                     .image(mainImage)
                     .build();
         }).collect(Collectors.toList());
+    }
+
+    public ProductResponse patchProduct(ProductRequest request) {
+        // user 정보 가져오기 (baarer token에서 추출)
+        Users user = authenticatedUserUtils.getCurrentUser();
+
+        Products product = productsRepository.findById(request.getId())
+                .orElseThrow(() -> new ProductNotFoundException("상품을 찾을 수 없습니다."));
+
+        // 소유자 확인
+        if (!product.getSeller().getUser().getId().equals(user.getId())) {
+            throw new ForbiddenException("수정할 수 있는 권한이 없습니다.");
+        }
+        product.setName(request.getName());
+        product.setPrice(request.getPrice());
+        product.setDescription(request.getDescription());
+        product.setStock(request.getStock());
+
+        // 이미지 변환 및 저장
+        if (request.getImages() != null && !request.getImages().isEmpty()) {
+            List<ProductImages> imageEntities = request.getImages().stream()
+                    .map(url -> ProductImages.builder()
+                            .product(product) // 관계 연결
+                            .imageUrl(url)
+                            .createdAt(LocalDateTime.now())
+                            .updatedAt(LocalDateTime.now())
+                            .build())
+                    .collect(Collectors.toList());
+
+            product.setImages(imageEntities);
+        }
+
+        Products savedProduct = productsRepository.save(product);
+
+        return ProductResponse.builder()
+                .id(savedProduct.getId())
+                .seller(SellerSummaryDTO.builder()
+                        .id(savedProduct.getSeller().getId())
+                        .storeName(savedProduct.getSeller().getStoreName())
+                        .image(savedProduct.getSeller().getImage())
+                        .build())
+                .name(savedProduct.getName())
+                .price(savedProduct.getPrice())
+                .description(savedProduct.getDescription())
+                .stock(savedProduct.getStock())
+                .images(savedProduct.getImages().stream()
+                        .map(ProductImages::getImageUrl)
+                        .collect(Collectors.toList()))
+                .createdAt(savedProduct.getCreatedAt())
+                .updatedAt(savedProduct.getUpdatedAt())
+                .build();
     }
 
 
