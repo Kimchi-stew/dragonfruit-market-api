@@ -5,8 +5,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class SellerRequest {
-    private Long id;
+public class CreateSellerDTO {
     private String storeName;
     private String description;
     private String image;
