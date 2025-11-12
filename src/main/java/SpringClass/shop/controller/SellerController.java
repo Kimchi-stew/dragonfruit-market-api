@@ -33,6 +33,15 @@ public class SellerController {
         return ResponseEntity.ok(ApiResponse.ok(result, "조회되었습니다."));
     }
 
+    @GetMapping("/{id}")
+    @Operation(summary = "단건 상점 조회", description = "단건 상점 조회 시 사용하는 API 입니다.")
+    public ResponseEntity<ApiResponse<SellerResponse>> getSeller(
+            @PathVariable Long id
+    ) {
+        SellerResponse result = sellerService.getSeller(id);
+        return ResponseEntity.ok(ApiResponse.ok(result, "조회되었습니다."));
+    }
+
     @PutMapping
     @Operation(summary = "상점수정", description = "상점 수정 시 사용하는 API 입니다.")
     public ResponseEntity<ApiResponse<SellerResponse>> patchSeller(@RequestBody SellerRequest request) {

@@ -1,13 +1,11 @@
 package SpringClass.shop.service;
 
 
-import SpringClass.shop.dto.SellerListDTO;
-import SpringClass.shop.dto.CreateSellerDTO;
-import SpringClass.shop.dto.SellerRequest;
-import SpringClass.shop.dto.SellerResponse;
+import SpringClass.shop.dto.*;
 import SpringClass.shop.entity.Sellers;
 import SpringClass.shop.entity.Users;
 import SpringClass.shop.exceptions.ForbiddenException;
+import SpringClass.shop.exceptions.ProductNotFoundException;
 import SpringClass.shop.exceptions.SellerNotFoundException;
 import SpringClass.shop.repository.SellersRepository;
 import SpringClass.shop.security.AuthenticatedUserUtils;
@@ -89,5 +87,17 @@ public class SellerService {
                 .image(savedSeller.getImage())
                 .createdAt(savedSeller.getCreatedAt())
                 .build();
+    }
+
+    public SellerResponse getSeller(Long id) {
+        return sellersRepository.findById(id)
+                .map(sellers -> SellerResponse.builder()
+                        .id(sellers.getId())
+                        .userId(sellers.getUser().getId())
+                        .storeName(sellers.getStoreName())
+                        .image(sellers.getImage())
+                        .createdAt(sellers.getCreatedAt())
+                        .build())
+                .orElseThrow(() -> new SellerNotFoundException("상점을 찾을 수 없습니다."));
     }
 }
