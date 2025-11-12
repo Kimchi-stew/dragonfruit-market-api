@@ -14,8 +14,10 @@ import SpringClass.shop.security.AuthenticatedUserUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import javax.swing.text.html.Option;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -159,6 +161,20 @@ public class ProductService {
                 .createdAt(savedProduct.getCreatedAt())
                 .updatedAt(savedProduct.getUpdatedAt())
                 .build();
+    }
+
+    public ProductResponse getProduct(Long id){
+        return productsRepository.findById(id)
+                .map(product -> ProductResponse.builder()
+                        .id(product.getId())
+                        .name(product.getName())
+                        .seller(SellerSummaryDTO.builder()
+                                .id(product.getSeller().getId())
+                                .storeName(product.getSeller().getStoreName())
+                                .build())
+                        .price(product.getPrice())
+                        .build())
+                .orElseThrow(() -> new ProductNotFoundException("상품을 찾을 수 없습니다."));
     }
 
 

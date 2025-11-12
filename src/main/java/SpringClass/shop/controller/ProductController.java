@@ -33,6 +33,14 @@ public class ProductController {
         return ResponseEntity.ok(ApiResponse.ok(result, "조회되었습니다."));
     }
 
+    @GetMapping("/{id}")
+    @Operation(summary = "단건 상품 조회", description = "단건상품 조회 시 사용하는 API 입니다.")
+    public ResponseEntity<ApiResponse<ProductResponse>> getProduct(@PathVariable Long id) {
+        ProductResponse result = productService.getProduct(id);
+        return ResponseEntity.ok(ApiResponse.ok(result, "조회되었습니다."));
+    }
+
+
     @PutMapping
     @Operation(summary = "상품수정", description = "상품수정 시 사용하는 API 입니다.")
     public ResponseEntity<ApiResponse<ProductResponse>> patchProduct(@RequestBody ProductRequest request) {
