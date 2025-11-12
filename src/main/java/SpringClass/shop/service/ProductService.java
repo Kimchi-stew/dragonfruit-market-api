@@ -11,13 +11,11 @@ import SpringClass.shop.exceptions.SellerNotFoundException;
 import SpringClass.shop.repository.ProductsRepository;
 import SpringClass.shop.repository.SellersRepository;
 import SpringClass.shop.security.AuthenticatedUserUtils;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-
-import javax.swing.text.html.Option;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -27,7 +25,7 @@ public class ProductService {
     private final SellersRepository sellersRepository;
     private final ProductsRepository productsRepository;
 
-    public ProductResponse createProduct(CreateProductDTO request) {
+    public ProductResponse createProduct(ProductRequest request) {
         // user 정보 가져오기 (baarer token에서 추출)
         Users user = authenticatedUserUtils.getCurrentUser();
 
@@ -81,15 +79,12 @@ public class ProductService {
 
     public List<ProductListDTO> getProducts(String category) {
         List<Products> products;
-        // 가격 낮은순 + (최신순)
         if ("asc".equalsIgnoreCase(category)) {
-            products = productsRepository.findAllByOrderByPriceAscCreatedAtDesc();
-        } // 고가순 + (최신순)
-        else if ("desc".equalsIgnoreCase(category)) {
-            products = productsRepository.findAllByOrderByPriceDescCreatedAtDesc();
+            products = productsRepository.findAllByDeletedAtIsNullOrderByPriceAscCreatedAtDesc();
+        } else if ("desc".equalsIgnoreCase(category)) {
+            products = productsRepository.findAllByDeletedAtIsNullOrderByPriceDescCreatedAtDesc();
         } else {
-            // 기본값 - 최신순
-            products = productsRepository.findAllByOrderByCreatedAtDesc();
+            products = productsRepository.findAllByDeletedAtIsNullOrderByCreatedAtDesc();
         }
 
         return products.stream().map(product -> {
@@ -112,11 +107,11 @@ public class ProductService {
         }).collect(Collectors.toList());
     }
 
-    public ProductResponse patchProduct(ProductRequest request) {
+    public ProductResponse patchProduct(Long id, ProductRequest request) {
         // user 정보 가져오기 (baarer token에서 추출)
         Users user = authenticatedUserUtils.getCurrentUser();
 
-        Products product = productsRepository.findById(request.getId())
+        Products product = productsRepository.findByIdAndDeletedAtIsNull(id)
                 .orElseThrow(() -> new ProductNotFoundException("상품을 찾을 수 없습니다."));
 
         // 소유자 확인
@@ -164,7 +159,7 @@ public class ProductService {
     }
 
     public ProductResponse getProduct(Long id){
-        return productsRepository.findById(id)
+        return productsRepository.findByIdAndDeletedAtIsNull(id)
                 .map(product -> ProductResponse.builder()
                         .id(product.getId())
                         .name(product.getName())
@@ -175,6 +170,31 @@ public class ProductService {
                         .price(product.getPrice())
                         .build())
                 .orElseThrow(() -> new ProductNotFoundException("상품을 찾을 수 없습니다."));
+    }
+
+    @Transactional
+    public ProductDeleteDTO deleteProduct(Long id) {
+        Users user = authenticatedUserUtils.getCurrentUser();
+
+        Products product = productsRepository.findByIdAndDeletedAtIsNull(id)
+                .orElseThrow(() -> new ProductNotFoundException("상품을 찾을 수 없습니다."));
+
+        // 소유자 확인
+        if (!product.getSeller().getUser().getId().equals(user.getId())) {
+            throw new ForbiddenException("삭제할 수 있는 권한이 없습니다.");
+        }
+        product.setDeletedAt(LocalDateTime.now());
+        Products savedProduct = productsRepository.save(product);
+
+        String firstImage = savedProduct.getImages() != null && !savedProduct.getImages().isEmpty()
+                ? savedProduct.getImages().get(0).getImageUrl() // 첫 번째 이미지 URL 사용
+                : null;
+
+        return ProductDeleteDTO.builder()
+                .name(savedProduct.getName())
+                .image(firstImage)
+                .deletedAt(savedProduct.getDeletedAt())
+                .build();
     }
 
 

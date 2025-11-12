@@ -1,7 +1,7 @@
 package SpringClass.shop.controller;
 
+import SpringClass.shop.dto.ProductDeleteDTO;
 import SpringClass.shop.dto.ProductListDTO;
-import SpringClass.shop.dto.CreateProductDTO;
 import SpringClass.shop.dto.ProductRequest;
 import SpringClass.shop.dto.ProductResponse;
 import SpringClass.shop.global.ApiResponse;
@@ -21,7 +21,7 @@ public class ProductController {
 
     @PostMapping
     @Operation(summary = "상품등록", description = "상품등록 시 사용하는 API 입니다.")
-    public ResponseEntity<ApiResponse<ProductResponse>> createProduct(@RequestBody CreateProductDTO request) {
+    public ResponseEntity<ApiResponse<ProductResponse>> createProduct(@RequestBody ProductRequest request) {
         ProductResponse result = productService.createProduct(request);
         return ResponseEntity.ok(ApiResponse.ok(result, "등록되었습니다."));
     }
@@ -41,11 +41,18 @@ public class ProductController {
     }
 
 
-    @PutMapping
+    @PutMapping("/{id}")
     @Operation(summary = "상품수정", description = "상품수정 시 사용하는 API 입니다.")
-    public ResponseEntity<ApiResponse<ProductResponse>> patchProduct(@RequestBody ProductRequest request) {
-        ProductResponse result = productService.patchProduct(request);
+    public ResponseEntity<ApiResponse<ProductResponse>> patchProduct(@PathVariable Long id, @RequestBody ProductRequest request) {
+        ProductResponse result = productService.patchProduct(id, request);
         return ResponseEntity.ok(ApiResponse.ok(result, "수정되었습니다."));
+    }
+
+    @DeleteMapping("/{id}")
+    @Operation(summary = "상품삭제", description = "상품삭제 시 사용하는 API 입니다.")
+    public ResponseEntity<ApiResponse<ProductDeleteDTO>> deleteProduct(@PathVariable Long id) {
+        ProductDeleteDTO result = productService.deleteProduct(id);
+        return ResponseEntity.ok(ApiResponse.ok(result, "삭제되었습니다."));
     }
 
 }

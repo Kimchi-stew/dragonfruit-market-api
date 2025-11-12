@@ -1,22 +1,16 @@
 package SpringClass.shop.repository;
-
 import SpringClass.shop.entity.Products.Products;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Query;
-
 import java.util.List;
 import java.util.Optional;
 
 public interface ProductsRepository extends JpaRepository<Products, Long> {
-    Optional<Products> findById(Long id);
+    Optional<Products> findByIdAndDeletedAtIsNull(Long id);
+    // 최신순 조회
+    List<Products> findAllByDeletedAtIsNullOrderByCreatedAtDesc();
+    // 가격 낮은순 + 최신순
+    List<Products> findAllByDeletedAtIsNullOrderByPriceAscCreatedAtDesc();
+    // 가격 높은순 + 최신순
+    List<Products> findAllByDeletedAtIsNullOrderByPriceDescCreatedAtDesc();
 
-    // 최신순
-    @Query("SELECT p FROM Products p ORDER BY p.createdAt DESC")
-    List<Products> findAllByOrderByCreatedAtDesc();
-    // 고가순 + (최신순)
-    @Query("SELECT p FROM Products p ORDER BY p.price DESC, p.createdAt DESC")
-    List<Products> findAllByOrderByPriceDescCreatedAtDesc();
-    // 저렴한순 + (최신순)
-    @Query("SELECT p FROM Products p ORDER BY p.price ASC, p.createdAt DESC")
-    List<Products> findAllByOrderByPriceAscCreatedAtDesc();
 }

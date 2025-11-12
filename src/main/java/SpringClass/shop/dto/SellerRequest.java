@@ -6,7 +6,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class SellerRequest {
-    private Long id;
     private String storeName;
     private String description;
     private String image;

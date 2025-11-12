@@ -1,7 +1,6 @@
 package SpringClass.shop.controller;
 
 import SpringClass.shop.dto.SellerListDTO;
-import SpringClass.shop.dto.CreateSellerDTO;
 import SpringClass.shop.dto.SellerRequest;
 import SpringClass.shop.dto.SellerResponse;
 import SpringClass.shop.global.ApiResponse;
@@ -21,7 +20,7 @@ public class SellerController {
 
     @PostMapping
     @Operation(summary = "상점등록", description = "상점등록 시 사용하는 API 입니다.")
-    public ResponseEntity<ApiResponse<SellerResponse>> createSeller(@RequestBody CreateSellerDTO request) {
+    public ResponseEntity<ApiResponse<SellerResponse>> createSeller(@RequestBody SellerRequest request) {
         SellerResponse result = sellerService.createSeller(request);
         return ResponseEntity.ok(ApiResponse.ok(result, "등록되었습니다."));
     }
@@ -42,10 +41,10 @@ public class SellerController {
         return ResponseEntity.ok(ApiResponse.ok(result, "조회되었습니다."));
     }
 
-    @PutMapping
+    @PutMapping("/{id}")
     @Operation(summary = "상점수정", description = "상점 수정 시 사용하는 API 입니다.")
-    public ResponseEntity<ApiResponse<SellerResponse>> patchSeller(@RequestBody SellerRequest request) {
-        SellerResponse result = sellerService.patchSeller(request);
+    public ResponseEntity<ApiResponse<SellerResponse>> patchSeller(@PathVariable Long id, @RequestBody SellerRequest request) {
+        SellerResponse result = sellerService.patchSeller(id, request);
         return ResponseEntity.ok(ApiResponse.ok(result, "수정되었습니다."));
     }
 

@@ -5,7 +5,6 @@ import SpringClass.shop.dto.*;
 import SpringClass.shop.entity.Sellers;
 import SpringClass.shop.entity.Users;
 import SpringClass.shop.exceptions.ForbiddenException;
-import SpringClass.shop.exceptions.ProductNotFoundException;
 import SpringClass.shop.exceptions.SellerNotFoundException;
 import SpringClass.shop.repository.SellersRepository;
 import SpringClass.shop.security.AuthenticatedUserUtils;
@@ -22,7 +21,7 @@ public class SellerService {
     private final AuthenticatedUserUtils authenticatedUserUtils;
     private final SellersRepository sellersRepository;
 
-    public SellerResponse createSeller(CreateSellerDTO request) {
+    public SellerResponse createSeller(SellerRequest request) {
         // user 정보 가져오기 (baarer token에서 추출)
         Users user = authenticatedUserUtils.getCurrentUser();
 
@@ -61,11 +60,11 @@ public class SellerService {
                 .collect(Collectors.toList());
     }
 
-    public SellerResponse patchSeller(SellerRequest request) {
+    public SellerResponse patchSeller(Long id, SellerRequest request) {
         // user 정보 가져오기 (baarer token에서 추출)
         Users user = authenticatedUserUtils.getCurrentUser();
 
-        Sellers sellers = sellersRepository.findById(request.getId())
+        Sellers sellers = sellersRepository.findById(id)
                 .orElseThrow(() -> new SellerNotFoundException("상점을 찾을 수 없습니다."));
 
         // 소유자 확인
