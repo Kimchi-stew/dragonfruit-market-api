@@ -45,6 +45,9 @@ public class Sellers {
     @LastModifiedDate
     private LocalDateTime updatedAt;
 
+    @Column(name="deleted_at")
+    private LocalDateTime deletedAt;
+
     // 관계
     @OneToMany(mappedBy = "seller", cascade = CascadeType.ALL)
     private List<Products> products;

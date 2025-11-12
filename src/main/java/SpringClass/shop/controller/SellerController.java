@@ -1,5 +1,6 @@
 package SpringClass.shop.controller;
 
+import SpringClass.shop.dto.SellerDeleteDTO;
 import SpringClass.shop.dto.SellerListDTO;
 import SpringClass.shop.dto.SellerRequest;
 import SpringClass.shop.dto.SellerResponse;
@@ -46,6 +47,13 @@ public class SellerController {
     public ResponseEntity<ApiResponse<SellerResponse>> patchSeller(@PathVariable Long id, @RequestBody SellerRequest request) {
         SellerResponse result = sellerService.patchSeller(id, request);
         return ResponseEntity.ok(ApiResponse.ok(result, "수정되었습니다."));
+    }
+
+    @DeleteMapping("/{id}")
+    @Operation(summary = "상점삭제", description = "상점 삭제 시 사용하는 API 입니다.")
+    public ResponseEntity<ApiResponse<SellerDeleteDTO>> deleteSeller(@PathVariable Long id) {
+        SellerDeleteDTO result = sellerService.deleteSeller(id);
+        return ResponseEntity.ok(ApiResponse.ok(result, "삭제되었습니다."));
     }
 
 

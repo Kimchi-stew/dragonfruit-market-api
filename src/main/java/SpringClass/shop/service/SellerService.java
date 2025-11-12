@@ -2,10 +2,12 @@ package SpringClass.shop.service;
 
 
 import SpringClass.shop.dto.*;
+import SpringClass.shop.entity.Products.Products;
 import SpringClass.shop.entity.Sellers;
 import SpringClass.shop.entity.Users;
 import SpringClass.shop.exceptions.ForbiddenException;
 import SpringClass.shop.exceptions.SellerNotFoundException;
+import SpringClass.shop.repository.ProductsRepository;
 import SpringClass.shop.repository.SellersRepository;
 import SpringClass.shop.security.AuthenticatedUserUtils;
 import lombok.RequiredArgsConstructor;
@@ -20,7 +22,7 @@ import java.util.stream.Collectors;
 public class SellerService {
     private final AuthenticatedUserUtils authenticatedUserUtils;
     private final SellersRepository sellersRepository;
-
+    private final ProductsRepository productsRepository;
     public SellerResponse createSeller(SellerRequest request) {
         // user 정보 가져오기 (baarer token에서 추출)
         Users user = authenticatedUserUtils.getCurrentUser();
@@ -49,7 +51,7 @@ public class SellerService {
     public List<SellerListDTO> getSellers() {
         List<Sellers> sellers;
         // 기본으로 최신순 정렬
-        sellers = sellersRepository.findAllByOrderByCreatedAtDesc();
+        sellers = sellersRepository.findAllByDeletedAtIsNullOrderByCreatedAtDesc();
 
         return sellers.stream()
                 .map(seller -> SellerListDTO.builder()
@@ -64,7 +66,7 @@ public class SellerService {
         // user 정보 가져오기 (baarer token에서 추출)
         Users user = authenticatedUserUtils.getCurrentUser();
 
-        Sellers sellers = sellersRepository.findById(id)
+        Sellers sellers = sellersRepository.findByIdAndDeletedAtIsNull(id)
                 .orElseThrow(() -> new SellerNotFoundException("상점을 찾을 수 없습니다."));
 
         // 소유자 확인
@@ -89,7 +91,7 @@ public class SellerService {
     }
 
     public SellerResponse getSeller(Long id) {
-        return sellersRepository.findById(id)
+        return sellersRepository.findByIdAndDeletedAtIsNull(id)
                 .map(sellers -> SellerResponse.builder()
                         .id(sellers.getId())
                         .userId(sellers.getUser().getId())
@@ -98,5 +100,30 @@ public class SellerService {
                         .createdAt(sellers.getCreatedAt())
                         .build())
                 .orElseThrow(() -> new SellerNotFoundException("상점을 찾을 수 없습니다."));
+    }
+
+    public SellerDeleteDTO deleteSeller(Long id) {
+        Users user = authenticatedUserUtils.getCurrentUser();
+
+        Sellers sellers = sellersRepository.findByIdAndDeletedAtIsNull(id)
+                .orElseThrow(() -> new SellerNotFoundException("상점을 찾을 수 없습니다."));
+
+        // 소유자 확인
+        if (!sellers.getUser().getId().equals(user.getId())) {
+            throw new ForbiddenException("삭제할 수 있는 권한이 없습니다.");
+        }
+        sellers.setDeletedAt(LocalDateTime.now());
+        // 상품들도 같이 논리 삭제
+        List<Products> products = productsRepository.findAllBySeller(sellers);
+        products.forEach(product -> product.setDeletedAt(LocalDateTime.now()));
+
+        productsRepository.saveAll(products);
+        sellersRepository.save(sellers);
+
+        return SellerDeleteDTO.builder()
+                .storeName(sellers.getStoreName())
+                .image(sellers.getImage())
+                .deletedAt(sellers.getDeletedAt())
+                .build();
     }
 }
