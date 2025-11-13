@@ -4,7 +4,7 @@ import SpringClass.shop.entity.Products.ProductImages;
 import SpringClass.shop.entity.Products.ProductLikes;
 import SpringClass.shop.entity.Products.ProductWish;
 import SpringClass.shop.entity.Products.Products;
-import SpringClass.shop.entity.Sellers;
+import SpringClass.shop.entity.Sellers.Sellers;
 import SpringClass.shop.entity.Users;
 import SpringClass.shop.exceptions.ForbiddenException;
 import SpringClass.shop.exceptions.ProductNotFoundException;

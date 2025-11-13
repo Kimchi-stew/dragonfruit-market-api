@@ -1,6 +1,6 @@
 package SpringClass.shop.repository;
 import SpringClass.shop.entity.Products.Products;
-import SpringClass.shop.entity.Sellers;
+import SpringClass.shop.entity.Sellers.Sellers;
 import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.List;
 import java.util.Optional;

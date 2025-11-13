@@ -1,6 +1,7 @@
-package SpringClass.shop.entity;
+package SpringClass.shop.entity.Sellers;
 
 import SpringClass.shop.entity.Products.Products;
+import SpringClass.shop.entity.Users;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;
@@ -36,6 +37,9 @@ public class Sellers {
 
     @Column(name="image")
     private String image;
+
+    @Column(name="like_count")
+    private int likeCount;
 
     @Column(nullable = false)
     @CreatedDate

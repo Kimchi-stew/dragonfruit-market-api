@@ -1,9 +1,5 @@
 package SpringClass.shop.dto;
 
-import SpringClass.shop.entity.Products.ProductImages;
-import SpringClass.shop.entity.Products.ProductWish;
-import SpringClass.shop.entity.Products.Products;
-import SpringClass.shop.entity.Sellers;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;

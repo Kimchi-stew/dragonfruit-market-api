@@ -19,5 +19,6 @@ public class SellerResponse {
     private String description;
     private String image;
     private LocalDateTime createdAt;
-
+    private int likeCount;
+    private boolean followed;
 }
