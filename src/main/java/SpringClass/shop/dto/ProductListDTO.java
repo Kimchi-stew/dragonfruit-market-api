@@ -19,4 +19,5 @@ public class ProductListDTO {
     private String name;
     private BigDecimal price;
     private String image; // 대표 이미지 1개
+    private int likeCount;
 }

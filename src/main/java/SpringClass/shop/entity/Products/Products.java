@@ -43,6 +43,9 @@ public class Products {
     @Column(nullable = false)
     private Integer stock;
 
+    @Column(name="like_count", nullable = false)
+    private int likeCount;
+
     @Column(nullable = false)
     @CreatedDate
     private LocalDateTime createdAt;

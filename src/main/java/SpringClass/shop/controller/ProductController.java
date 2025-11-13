@@ -1,9 +1,6 @@
 package SpringClass.shop.controller;
 
-import SpringClass.shop.dto.ProductDeleteDTO;
-import SpringClass.shop.dto.ProductListDTO;
-import SpringClass.shop.dto.ProductRequest;
-import SpringClass.shop.dto.ProductResponse;
+import SpringClass.shop.dto.*;
 import SpringClass.shop.global.ApiResponse;
 import SpringClass.shop.service.ProductService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -54,5 +51,20 @@ public class ProductController {
         ProductDeleteDTO result = productService.deleteProduct(id);
         return ResponseEntity.ok(ApiResponse.ok(result, "삭제되었습니다."));
     }
+
+    @PostMapping("likes/{id}")
+    @Operation(summary = "상품좋아요", description = "상품 좋아요 시 사용하는 API 입니다.")
+    public ResponseEntity<ApiResponse<LikesResponseDTO>> likeProduct(@PathVariable Long id) {
+        LikesResponseDTO result = productService.likeProduct(id);
+        return ResponseEntity.ok(ApiResponse.ok(result, "처리되었습니다."));
+    }
+
+    @PostMapping("wish/{id}")
+    @Operation(summary = "상품찜", description = "상품 찜 시 사용하는 API 입니다.")
+    public ResponseEntity<ApiResponse<WishResponseDTO>> wishProduct(@PathVariable Long id) {
+        WishResponseDTO result = productService.wishProduct(id);
+        return ResponseEntity.ok(ApiResponse.ok(result, "처리되었습니다."));
+    }
+
 
 }

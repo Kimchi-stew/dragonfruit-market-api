@@ -9,14 +9,14 @@ import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "product_likes")
+@Table(name = "product_wish")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
 @EntityListeners(AuditingEntityListener.class)
-public class ProductLikes {
+public class ProductWish {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -34,4 +34,3 @@ public class ProductLikes {
     @CreatedDate
     private LocalDateTime createdAt;
 }
-

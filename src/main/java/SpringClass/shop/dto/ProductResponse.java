@@ -1,5 +1,8 @@
 package SpringClass.shop.dto;
 
+import SpringClass.shop.entity.Products.ProductImages;
+import SpringClass.shop.entity.Products.ProductWish;
+import SpringClass.shop.entity.Products.Products;
 import SpringClass.shop.entity.Sellers;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -21,7 +24,9 @@ public class ProductResponse {
     private BigDecimal price;
     private String description;
     private Integer stock;
+    private int likeCount;
     private List<String> images;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+    private boolean wished;
 }

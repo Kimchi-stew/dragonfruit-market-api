@@ -1,13 +1,16 @@
 package SpringClass.shop.service;
-
 import SpringClass.shop.dto.*;
 import SpringClass.shop.entity.Products.ProductImages;
+import SpringClass.shop.entity.Products.ProductLikes;
+import SpringClass.shop.entity.Products.ProductWish;
 import SpringClass.shop.entity.Products.Products;
 import SpringClass.shop.entity.Sellers;
 import SpringClass.shop.entity.Users;
 import SpringClass.shop.exceptions.ForbiddenException;
 import SpringClass.shop.exceptions.ProductNotFoundException;
 import SpringClass.shop.exceptions.SellerNotFoundException;
+import SpringClass.shop.repository.ProductLikeRepository;
+import SpringClass.shop.repository.ProductWishRepository;
 import SpringClass.shop.repository.ProductsRepository;
 import SpringClass.shop.repository.SellersRepository;
 import SpringClass.shop.security.AuthenticatedUserUtils;
@@ -16,6 +19,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -24,9 +28,11 @@ public class ProductService {
     private final AuthenticatedUserUtils authenticatedUserUtils;
     private final SellersRepository sellersRepository;
     private final ProductsRepository productsRepository;
+    private final ProductLikeRepository productLikeRepository;
+    private final ProductWishRepository productWishRepository;
 
     public ProductResponse createProduct(ProductRequest request) {
-        // user 정보 가져오기 (baarer token에서 추출)
+        // user 정보 가져오기 (bearer token에서 추출)
         Users user = authenticatedUserUtils.getCurrentUser();
 
         // 판매자(상점) 등록을 안 하면 오류
@@ -38,6 +44,7 @@ public class ProductService {
                 .seller(seller)
                 .price(request.getPrice())
                 .description(request.getDescription())
+                .likeCount(0) // 기본값
                 .stock(request.getStock())
                 .createdAt(LocalDateTime.now())
                 .build();
@@ -68,6 +75,8 @@ public class ProductService {
                 .name(savedProduct.getName())
                 .price(savedProduct.getPrice())
                 .description(savedProduct.getDescription())
+                .likeCount(savedProduct.getLikeCount())
+                .wished(false) // 신규 상품이므로
                 .stock(savedProduct.getStock())
                 .images(savedProduct.getImages().stream()
                         .map(ProductImages::getImageUrl)
@@ -102,13 +111,14 @@ public class ProductService {
                             .build())
                     .name(product.getName())
                     .price(product.getPrice())
+                    .likeCount(product.getLikeCount())
                     .image(mainImage)
                     .build();
         }).collect(Collectors.toList());
     }
 
     public ProductResponse patchProduct(Long id, ProductRequest request) {
-        // user 정보 가져오기 (baarer token에서 추출)
+        // user 정보 가져오기 (bearer token에서 추출)
         Users user = authenticatedUserUtils.getCurrentUser();
 
         Products product = productsRepository.findByIdAndDeletedAtIsNull(id)
@@ -138,7 +148,8 @@ public class ProductService {
         }
 
         Products savedProduct = productsRepository.save(product);
-
+        // 찜 여부 판별
+        boolean wished = productWishRepository.existsByUserAndProduct(user, product);
         return ProductResponse.builder()
                 .id(savedProduct.getId())
                 .seller(SellerSummaryDTO.builder()
@@ -150,26 +161,35 @@ public class ProductService {
                 .price(savedProduct.getPrice())
                 .description(savedProduct.getDescription())
                 .stock(savedProduct.getStock())
+                .wished(wished)
                 .images(savedProduct.getImages().stream()
                         .map(ProductImages::getImageUrl)
                         .collect(Collectors.toList()))
+                .likeCount(savedProduct.getLikeCount())
                 .createdAt(savedProduct.getCreatedAt())
                 .updatedAt(savedProduct.getUpdatedAt())
                 .build();
     }
 
     public ProductResponse getProduct(Long id){
-        return productsRepository.findByIdAndDeletedAtIsNull(id)
-                .map(product -> ProductResponse.builder()
-                        .id(product.getId())
-                        .name(product.getName())
-                        .seller(SellerSummaryDTO.builder()
-                                .id(product.getSeller().getId())
-                                .storeName(product.getSeller().getStoreName())
-                                .build())
-                        .price(product.getPrice())
-                        .build())
+        // user 정보 가져오기 (baarer token에서 추출)
+        Users user = authenticatedUserUtils.getCurrentUser();
+
+        // 상품 조회
+        Products product = productsRepository.findByIdAndDeletedAtIsNull(id)
                 .orElseThrow(() -> new ProductNotFoundException("상품을 찾을 수 없습니다."));
+        boolean wished = productWishRepository.existsByUserAndProduct(user, product);
+        return ProductResponse.builder()
+                .id(product.getId())
+                .name(product.getName())
+                .seller(SellerSummaryDTO.builder()
+                        .id(product.getSeller().getId())
+                        .storeName(product.getSeller().getStoreName())
+                        .build())
+                .price(product.getPrice())
+                .likeCount(product.getLikeCount())
+                .wished(wished)
+                .build();
     }
 
     @Transactional
@@ -195,6 +215,62 @@ public class ProductService {
                 .image(firstImage)
                 .deletedAt(savedProduct.getDeletedAt())
                 .build();
+    }
+
+    @Transactional
+    public LikesResponseDTO likeProduct(Long id) {
+        // user 정보 가져오기 (bearer token에서 추출)
+        Users user = authenticatedUserUtils.getCurrentUser();
+
+        Products product = productsRepository.findByIdAndDeletedAtIsNull(id)
+                .orElseThrow(() -> new ProductNotFoundException("상품을 찾을 수 없습니다."));
+        // 좋아요 여부 확인
+        Optional<ProductLikes> existing = productLikeRepository.findByUserAndProduct(user, product);
+        boolean liked;
+        if (existing.isPresent()) {
+            productLikeRepository.delete(existing.get()); // 좋아요 취소
+
+            product.setLikeCount(product.getLikeCount() - 1);
+            productsRepository.save(product);
+            liked = false;
+        } else {
+            ProductLikes productLikes = ProductLikes.builder()
+                    .user(user)
+                    .product(product)
+                    .createdAt(LocalDateTime.now())
+                    .build();
+            productLikeRepository.save(productLikes);
+
+            product.setLikeCount(product.getLikeCount() + 1);
+            productsRepository.save(product);
+            liked = true;
+        }
+        return new LikesResponseDTO(liked, product.getLikeCount());
+    }
+
+    public WishResponseDTO wishProduct(Long id) {
+        // user 정보 가져오기 (baarer token에서 추출)
+        Users user = authenticatedUserUtils.getCurrentUser();
+
+        Products product = productsRepository.findByIdAndDeletedAtIsNull(id)
+                .orElseThrow(() -> new ProductNotFoundException("상품을 찾을 수 없습니다."));
+
+        Optional<ProductWish> existing = productWishRepository.findByUserAndProduct(user, product);
+        boolean wished;
+        // 찜 여부 확인
+        if (existing.isPresent()) {
+            productWishRepository.delete(existing.get()); // 찜 취소
+            wished = false;
+        } else {
+            ProductWish productWish = ProductWish.builder()
+                    .user(user)
+                    .product(product)
+                    .createdAt(LocalDateTime.now())
+                    .build();
+            productWishRepository.save(productWish);
+            wished = true;
+        }
+        return new WishResponseDTO(wished);
     }
 
 
