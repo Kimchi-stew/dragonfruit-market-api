@@ -1,15 +1,14 @@
 package SpringClass.shop.controller;
-
 import SpringClass.shop.dto.ProductListDTO;
-import SpringClass.shop.dto.ProductResponse;
 import SpringClass.shop.dto.SellerListDTO;
+import SpringClass.shop.dto.UserProfileDTO;
 import SpringClass.shop.global.ApiResponse;
 import SpringClass.shop.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -20,6 +19,17 @@ import java.util.List;
 @RequestMapping("/api/users")
 public class UserController {
     private final UserService userService;
+
+    @GetMapping("/profile")
+    @Operation(summary = "내 프로필 조회", description = "프로필 조회 시 사용하는 API 입니다.")
+    public ResponseEntity<ApiResponse<UserProfileDTO>> getProfile() {
+        UserProfileDTO result = userService.getProfile();
+        return ResponseEntity.ok(ApiResponse.ok(result, "조회되었습니다."));
+    }
+
+//    @PutMapping("/profile")
+//    @Operation(summary = "내 프로필 수정")
+
 
     @GetMapping("/likes/products")
     @Operation(summary = "내 좋아요한 상품 조회", description = "좋아요한 상품 조회 시 사용하는 API 입니다.")
@@ -39,6 +49,13 @@ public class UserController {
     @Operation(summary = "내 좋아요한 상점 조회", description = "좋아요한 상점 조회 시 사용하는 API 입니다.")
     public ResponseEntity<ApiResponse<List<SellerListDTO>>> getLikeSellers() {
         List<SellerListDTO> result = userService.getLikeSellers();
+        return ResponseEntity.ok(ApiResponse.ok(result, "조회되었습니다."));
+    }
+
+    @GetMapping("follow/sellers")
+    @Operation(summary = "내 팔로우한 상점 조회", description = "팔로우한 상점 조회 시 사용하는 API 입니다.")
+    public ResponseEntity<ApiResponse<List<SellerListDTO>>> getFollowSellers() {
+        List<SellerListDTO> result = userService.getFollowSellers();
         return ResponseEntity.ok(ApiResponse.ok(result, "조회되었습니다."));
     }
 }
