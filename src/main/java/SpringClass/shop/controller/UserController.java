@@ -20,10 +20,17 @@ import java.util.List;
 public class UserController {
     private final UserService userService;
 
-    @GetMapping("/likes")
-    @Operation(summary = "좋아요한 상품 보기", description = "좋아요한 상품 조회 시 사용하는 API 입니다.")
+    @GetMapping("/likes/products")
+    @Operation(summary = "내 좋아요한 상품 조회", description = "좋아요한 상품 조회 시 사용하는 API 입니다.")
     public ResponseEntity<ApiResponse<List<ProductListDTO>>> getLikeProducts() {
         List<ProductListDTO> result = userService.getLikeProducts();
+        return ResponseEntity.ok(ApiResponse.ok(result, "조회되었습니다."));
+    }
+
+    @GetMapping("/wish/products")
+    @Operation(summary = "내 찜한 상품 조회", description = "찜한 상품 조회 시 사용하는 API 입니다.")
+    public ResponseEntity<ApiResponse<List<ProductListDTO>>> getWishProducts() {
+        List<ProductListDTO> result = userService.getWishProducts();
         return ResponseEntity.ok(ApiResponse.ok(result, "조회되었습니다."));
     }
 }
