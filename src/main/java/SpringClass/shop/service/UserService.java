@@ -1,10 +1,12 @@
 package SpringClass.shop.service;
 
 import SpringClass.shop.dto.ProductListDTO;
+import SpringClass.shop.dto.SellerListDTO;
 import SpringClass.shop.dto.SellerSummaryDTO;
 import SpringClass.shop.entity.Products.ProductLikes;
 import SpringClass.shop.entity.Products.ProductWish;
 import SpringClass.shop.entity.Products.Products;
+import SpringClass.shop.entity.Sellers.SellerLikes;
 import SpringClass.shop.entity.Users;
 import SpringClass.shop.exceptions.ProductNotFoundException;
 import SpringClass.shop.repository.*;
@@ -23,6 +25,7 @@ public class UserService {
     private final ProductLikeRepository productLikeRepository;
     private final ProductsRepository productsRepository;
     private final ProductWishRepository productWishRepository;
+    private final SellerLikesRepository sellerLikesRepository;
 
     public List<ProductListDTO> getLikeProducts() {
         // user 정보 가져오기 (baarer token에서 추출)
@@ -80,6 +83,20 @@ public class UserService {
                                     .build())
                             .build();
                 })
+                .collect(Collectors.toList());
+    }
+
+    public List<SellerListDTO> getLikeSellers() {
+        Users user = authenticatedUserUtils.getCurrentUser();
+        List<SellerLikes> sellerLikes = sellerLikesRepository.findByUserAndSellers_DeletedAtIsNull(user);
+
+        return sellerLikes.stream()
+                .map(seller -> SellerListDTO.builder()
+                        .id(seller.getSellers().getId())
+                        .storeName(seller.getSellers().getStoreName())
+                        .image(seller.getSellers().getImage())
+                        .likeCount(seller.getSellers().getLikeCount())
+                        .build())
                 .collect(Collectors.toList());
     }
 }
