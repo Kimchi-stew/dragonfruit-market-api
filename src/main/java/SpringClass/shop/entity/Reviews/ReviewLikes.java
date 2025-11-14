@@ -2,7 +2,10 @@ package SpringClass.shop.entity.Reviews;
 import SpringClass.shop.entity.Users;
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "review_likes")
@@ -25,4 +28,8 @@ public class ReviewLikes {
     @ManyToOne
     @JoinColumn(name = "review_id", nullable = false)
     private Reviews review;
+
+    @Column(name="created_at", nullable = false)
+    @CreatedDate
+    private LocalDateTime createdAt;
 }

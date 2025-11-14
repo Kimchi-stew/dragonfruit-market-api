@@ -1,24 +1,20 @@
 package SpringClass.shop.service;
 
-import SpringClass.shop.dto.ProductListDTO;
-import SpringClass.shop.dto.SellerListDTO;
-import SpringClass.shop.dto.SellerSummaryDTO;
-import SpringClass.shop.dto.UserProfileDTO;
+import SpringClass.shop.dto.*;
 import SpringClass.shop.entity.Products.ProductLikes;
 import SpringClass.shop.entity.Products.ProductWish;
 import SpringClass.shop.entity.Products.Products;
 import SpringClass.shop.entity.Sellers.SellerFollow;
 import SpringClass.shop.entity.Sellers.SellerLikes;
 import SpringClass.shop.entity.Users;
-import SpringClass.shop.exceptions.ProductNotFoundException;
+import SpringClass.shop.exceptions.PasswordMismatchException;
 import SpringClass.shop.repository.*;
 import SpringClass.shop.security.AuthenticatedUserUtils;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -31,16 +27,46 @@ public class UserService {
     private final SellerLikesRepository sellerLikesRepository;
     private final SellerFollowRepository sellerFollowRepository;
     private final UsersRepository usersRepository;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserProfileDTO getProfile() {
+    public UserProfileResponse getProfile() {
         Users user = authenticatedUserUtils.getCurrentUser();
-        return UserProfileDTO.builder()
+        return UserProfileResponse.builder()
                 .id(user.getId())
                 .email(user.getEmail())
                 .nickname(user.getNickname())
                 .profileImage(user.getProfileImage())
                 .gender(user.getGender())
                 .createdAt(user.getCreatedAt())
+                .updatedAt(user.getUpdatedAt())
+                .build();
+    }
+
+    public String patchPassword(UserPasswordDTO request) {
+        Users user = authenticatedUserUtils.getCurrentUser();
+        if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
+            throw new PasswordMismatchException("비밀번호가 일치하지 않습니다.");
+        }
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        usersRepository.save(user);
+        return "비밀번호가 변경되었습니다.";
+    }
+
+    public UserProfileResponse patchProfile(UserProfileRequest request) {
+        Users user = authenticatedUserUtils.getCurrentUser();
+        user.setEmail(request.getEmail());
+        user.setNickname(request.getNickname());
+        user.setGender(request.getGender());
+        user.setProfileImage(request.getProfileImage());
+        usersRepository.save(user);
+        return UserProfileResponse.builder()
+                .id(user.getId())
+                .email(user.getEmail())
+                .nickname(user.getNickname())
+                .profileImage(user.getProfileImage())
+                .gender(user.getGender())
+                .createdAt(user.getCreatedAt())
+                .updatedAt(user.getUpdatedAt())
                 .build();
     }
 

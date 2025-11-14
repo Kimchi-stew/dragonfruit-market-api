@@ -4,7 +4,10 @@ import SpringClass.shop.entity.Products.Products;
 import SpringClass.shop.entity.Users;
 import jakarta.persistence.*;
 import lombok.*;
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+import org.springframework.web.bind.annotation.DeleteMapping;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -37,11 +40,21 @@ public class Reviews {
     @Column(columnDefinition = "TEXT")
     private String content;
 
+    @Column(name="like_count", nullable = false)
+    private int likeCount;
+
     @Column(nullable = false)
+    @CreatedDate
     private LocalDateTime createdAt;
 
     @Column(nullable = false)
+    @LastModifiedDate
     private LocalDateTime updatedAt;
+
+    @Column(name="deleted_at")
+    private LocalDateTime deletedAt;
+
+
 
     // 관계
     @OneToMany(mappedBy = "review", cascade = CascadeType.ALL, orphanRemoval = true)

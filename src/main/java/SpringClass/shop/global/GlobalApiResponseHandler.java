@@ -36,14 +36,14 @@ public class GlobalApiResponseHandler {
     @ExceptionHandler(SellerNotFoundException.class)
     public ResponseEntity<ApiResponse<Void>> handleSellerNotFoundException(SellerNotFoundException e) {
         return ResponseEntity.status(404)
-                .body(ApiResponse.fail("판매자를 찾을 수 없습니다."));
+                .body(ApiResponse.fail("해당 판매자를 찾을 수 없습니다."));
     }
 
     // 존재하지 않는 상품 처리
     @ExceptionHandler(ProductNotFoundException.class)
     public ResponseEntity<ApiResponse<Void>> handleProductNotFoundException(ProductNotFoundException e) {
         return ResponseEntity.status(404)
-                .body(ApiResponse.fail("상품을 찾을 수 없습니다."));
+                .body(ApiResponse.fail("해당 상품을 찾을 수 없습니다."));
     }
 
     // 수정할 수 있는 권한 처리
@@ -52,6 +52,23 @@ public class GlobalApiResponseHandler {
         return ResponseEntity.status(403)
                 .body(ApiResponse.fail("수정할 수 있는 권한이 없습니다."));
     }
+
+    // 비밀번호가 일치하지 않을 때 처리
+    @ExceptionHandler(PasswordMismatchException.class)
+    public ResponseEntity<ApiResponse<Void>> handlePasswordMismatchException(PasswordMismatchException e) {
+        return ResponseEntity.status(401)
+                .body(ApiResponse.fail("비밀번호가 일치하지 않습니다."));
+    }
+    // 존재하지 않는 리뷰 처리
+    @ExceptionHandler(ReviewNotFoundException.class)
+    public ResponseEntity<ApiResponse<Void>> handleReviewNotFoundException(ReviewNotFoundException e) {
+        return ResponseEntity.status(404)
+                .body(ApiResponse.fail("해당 리뷰를 찾을 수 없습니다."));
+    }
+
+
+
+
 
 
 

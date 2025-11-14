@@ -12,11 +12,12 @@ import java.time.LocalDateTime;
 @Setter
 @Builder
 @AllArgsConstructor
-public class UserProfileDTO {
+public class UserProfileResponse {
     private Long id;
     private String email;
     private String nickname;
     private GenderRole gender;
     private String profileImage;
     private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
 }

@@ -1,16 +1,11 @@
 package SpringClass.shop.controller;
-import SpringClass.shop.dto.ProductListDTO;
-import SpringClass.shop.dto.SellerListDTO;
-import SpringClass.shop.dto.UserProfileDTO;
+import SpringClass.shop.dto.*;
 import SpringClass.shop.global.ApiResponse;
 import SpringClass.shop.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -22,14 +17,24 @@ public class UserController {
 
     @GetMapping("/profile")
     @Operation(summary = "내 프로필 조회", description = "프로필 조회 시 사용하는 API 입니다.")
-    public ResponseEntity<ApiResponse<UserProfileDTO>> getProfile() {
-        UserProfileDTO result = userService.getProfile();
+    public ResponseEntity<ApiResponse<UserProfileResponse>> getProfile() {
+        UserProfileResponse result = userService.getProfile();
         return ResponseEntity.ok(ApiResponse.ok(result, "조회되었습니다."));
     }
 
-//    @PutMapping("/profile")
-//    @Operation(summary = "내 프로필 수정")
+    @PutMapping("/profile/password")
+    @Operation(summary = "비밀번호 수정", description = "비밀번호 수정 시 사용하는 API 입니다.")
+    public ResponseEntity<ApiResponse<String>> patchPassword(@RequestBody UserPasswordDTO request) {
+        String result = userService.patchPassword(request);
+        return ResponseEntity.ok(ApiResponse.ok(result));
+    }
 
+    @PutMapping("/profile")
+    @Operation(summary = "내 프로필 수정", description = "프로필 수정 시 사용하는 API 입니다.")
+    public ResponseEntity<ApiResponse<UserProfileResponse>> patchProfile(@RequestBody UserProfileRequest request) {
+        UserProfileResponse result = userService.patchProfile(request);
+        return ResponseEntity.ok(ApiResponse.ok(result, "수정되었습니다."));
+    }
 
     @GetMapping("/likes/products")
     @Operation(summary = "내 좋아요한 상품 조회", description = "좋아요한 상품 조회 시 사용하는 API 입니다.")

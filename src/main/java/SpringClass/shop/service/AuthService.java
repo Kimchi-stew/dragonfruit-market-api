@@ -31,8 +31,6 @@ public class AuthService {
             throw new IllegalArgumentException("이미 존재하는 계정입니다.");
         }
 
-
-
         Users user = Users.builder()
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
