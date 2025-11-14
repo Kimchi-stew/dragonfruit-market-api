@@ -70,4 +70,20 @@ public class UserController {
         List<ReviewListDTO> result = userService.getMyReviews();
         return ResponseEntity.ok(ApiResponse.ok(result, "조회되었습니다."));
     }
+
+    @GetMapping("/products")
+    @Operation(summary = "내 상품 조회", description = "내 상품 조회 시 사용하는 API 입니다.")
+    public ResponseEntity<ApiResponse<List<ProductListDTO>>> getMyProducts() {
+        List<ProductListDTO> result = userService.getMyProducts();
+        return ResponseEntity.ok(ApiResponse.ok(result, "조회되었습니다."));
+    }
+
+    @GetMapping("/sellers")
+    @Operation(summary = "내 상점 조회", description = "내 상점 조회 시 사용하는 API 입니다.")
+    public ResponseEntity<ApiResponse<SellerResponse>> getMySeller() {
+        SellerResponse result = userService.getMySeller();
+        return ResponseEntity.ok(ApiResponse.ok(result, "조회되었습니다."));
+    }
+
+
 }

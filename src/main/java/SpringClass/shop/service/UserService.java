@@ -7,8 +7,10 @@ import SpringClass.shop.entity.Products.Products;
 import SpringClass.shop.entity.Reviews.Reviews;
 import SpringClass.shop.entity.Sellers.SellerFollow;
 import SpringClass.shop.entity.Sellers.SellerLikes;
+import SpringClass.shop.entity.Sellers.Sellers;
 import SpringClass.shop.entity.Users;
 import SpringClass.shop.exceptions.PasswordMismatchException;
+import SpringClass.shop.exceptions.SellerNotFoundException;
 import SpringClass.shop.repository.*;
 import SpringClass.shop.security.AuthenticatedUserUtils;
 import lombok.RequiredArgsConstructor;
@@ -30,6 +32,7 @@ public class UserService {
     private final UsersRepository usersRepository;
     private final PasswordEncoder passwordEncoder;
     private final ReviewRepository reviewRepository;
+    private final SellersRepository sellersRepository;
 
     public UserProfileResponse getProfile() {
         Users user = authenticatedUserUtils.getCurrentUser();
@@ -173,5 +176,42 @@ public class UserService {
                         .likeCount(review.getLikeCount())
                         .build())
                 .collect(Collectors.toList());
+    }
+
+    public List<ProductListDTO> getMyProducts() {
+        Users user = authenticatedUserUtils.getCurrentUser();
+        Sellers seller = sellersRepository.findByUser(user)
+                .orElseThrow(() -> new SellerNotFoundException("해당 상점을 찾을 수 없습니다."));
+        // 최신순
+        List<Products> products = productsRepository.findAllBySellerAndDeletedAtIsNullOrderByCreatedAtDesc(seller);
+
+        return products.stream()
+                .map(product -> ProductListDTO.builder()
+                        .id(product.getId())
+                        .seller(SellerSummaryDTO.from(product.getSeller()))
+                        .name(product.getName())
+                        .price(product.getPrice())
+                        .image(product.getImages().get(0).getImageUrl())
+                        .likeCount(product.getLikeCount())
+                        .build())
+                .collect(Collectors.toList());
+    }
+
+    public SellerResponse getMySeller() {
+        Users user = authenticatedUserUtils.getCurrentUser();
+        Sellers seller = sellersRepository.findByUser(user)
+                .orElseThrow(() -> new SellerNotFoundException("상점이 존재하지 않습니다."));
+        boolean followed = sellerFollowRepository.existsByUserAndSellers(user, seller);
+        return SellerResponse.builder()
+                .id(seller.getId())
+                .userId(seller.getId())
+                .storeName(seller.getStoreName())
+                .description(seller.getDescription())
+                .image(seller.getImage())
+                .createdAt(seller.getCreatedAt())
+                .likeCount(seller.getLikeCount())
+                .followed(followed)
+                .build();
+
     }
 }
