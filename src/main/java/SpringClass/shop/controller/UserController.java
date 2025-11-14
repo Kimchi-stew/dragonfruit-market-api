@@ -63,4 +63,11 @@ public class UserController {
         List<SellerListDTO> result = userService.getFollowSellers();
         return ResponseEntity.ok(ApiResponse.ok(result, "조회되었습니다."));
     }
+
+    @GetMapping("/reviews")
+    @Operation(summary = "내가 쓴 리뷰 조회", description = "내 리뷰 조회 시 사용하는 API 입니다.")
+    public ResponseEntity<ApiResponse<List<ReviewListDTO>>> getMyReviews() {
+        List<ReviewListDTO> result = userService.getMyReviews();
+        return ResponseEntity.ok(ApiResponse.ok(result, "조회되었습니다."));
+    }
 }

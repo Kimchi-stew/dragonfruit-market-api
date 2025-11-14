@@ -4,6 +4,7 @@ import SpringClass.shop.dto.*;
 import SpringClass.shop.entity.Products.ProductLikes;
 import SpringClass.shop.entity.Products.ProductWish;
 import SpringClass.shop.entity.Products.Products;
+import SpringClass.shop.entity.Reviews.Reviews;
 import SpringClass.shop.entity.Sellers.SellerFollow;
 import SpringClass.shop.entity.Sellers.SellerLikes;
 import SpringClass.shop.entity.Users;
@@ -28,6 +29,7 @@ public class UserService {
     private final SellerFollowRepository sellerFollowRepository;
     private final UsersRepository usersRepository;
     private final PasswordEncoder passwordEncoder;
+    private final ReviewRepository reviewRepository;
 
     public UserProfileResponse getProfile() {
         Users user = authenticatedUserUtils.getCurrentUser();
@@ -152,6 +154,23 @@ public class UserService {
                         .storeName(sellerFollow.getSellers().getStoreName())
                         .image(sellerFollow.getSellers().getImage())
                         .likeCount(sellerFollow.getSellers().getLikeCount())
+                        .build())
+                .collect(Collectors.toList());
+    }
+
+    public List<ReviewListDTO> getMyReviews() {
+        Users user = authenticatedUserUtils.getCurrentUser();
+        // 최신순
+        List<Reviews> reviews = reviewRepository.findByUserAndDeletedAtIsNullOrderByCreatedAtDesc(user);
+        return reviews.stream()
+                .map(review -> ReviewListDTO.builder()
+
+                        .id(review.getId())
+                        .user(UserSummaryDTO.from(review.getUser()))
+                        .rating(review.getRating())
+                        .createdAt(review.getCreatedAt())
+                        .image(review.getImages().get(0).getImageUrl()) // 첫번째 이미지
+                        .likeCount(review.getLikeCount())
                         .build())
                 .collect(Collectors.toList());
     }
