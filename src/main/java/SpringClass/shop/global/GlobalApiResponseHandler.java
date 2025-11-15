@@ -66,6 +66,15 @@ public class GlobalApiResponseHandler {
                 .body(ApiResponse.fail("해당 리뷰를 찾을 수 없습니다."));
     }
 
+    // 장바구니에 상품이 없을 때 처리
+    @ExceptionHandler(CartNotFoundException.class)
+    public ResponseEntity<ApiResponse<Void>> handleCartNotFoundException(CartNotFoundException e) {
+        return ResponseEntity.status(404)
+                .body(ApiResponse.fail("장바구니에 상품이 없습니다."));
+    }
+
+
+
 
 
 
