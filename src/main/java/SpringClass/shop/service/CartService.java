@@ -9,6 +9,7 @@ import SpringClass.shop.exceptions.ProductNotFoundException;
 import SpringClass.shop.repository.CartItemsRepository;
 import SpringClass.shop.repository.ProductsRepository;
 import SpringClass.shop.security.AuthenticatedUserUtils;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -23,7 +24,8 @@ public class CartService {
     private final AuthenticatedUserUtils authenticatedUserUtils;
     private final ProductsRepository productsRepository;
     private final CartItemsRepository cartItemsRepository;
-    public final ProductSummaryDTO plusProduct(CartRequest request) {
+
+    public ProductSummaryDTO plusProduct(CartRequest request) {
         Users user = authenticatedUserUtils.getCurrentUser();
         Products products = productsRepository.findByIdAndDeletedAtIsNull(request.getProductId())
                 .orElseThrow(() -> new ProductNotFoundException("해당 상품을 찾을 수 없습니다."));
@@ -81,5 +83,24 @@ public class CartService {
                 .totalQuantity(totalQuantity)
                 .totalPrice(totalPrice)
                 .build();
+    }
+
+    @Transactional
+    public void deleteProduct(CartRequest request) {
+        Users user = authenticatedUserUtils.getCurrentUser();
+
+        Products products = productsRepository.findByIdAndDeletedAtIsNull(request.getProductId())
+                .orElseThrow(() -> new ProductNotFoundException("해당 상품을 찾을 수 없습니다."));
+        // 장바구니에 들어있는 지 체크
+        CartItems cartItems = cartItemsRepository.findByUserAndProduct(user, products)
+                .orElseThrow(() -> new CartNotFoundException("장바구니에 해당 상품이 존재하지 않습니다."));
+        // 수량만 삭제
+        if (cartItems.getQuantity()-request.getQuantity()>=1) {
+            cartItems.setQuantity(cartItems.getQuantity()-request.getQuantity());
+            cartItemsRepository.save(cartItems);
+        } else {
+            // 장바구니에서 삭제
+            cartItemsRepository.delete(cartItems);
+        }
     }
 }

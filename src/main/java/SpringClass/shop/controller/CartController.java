@@ -31,4 +31,12 @@ public class CartController {
         return ResponseEntity.ok(ApiResponse.ok(result, "조회되었습니다."));
     }
 
+    @DeleteMapping
+    @Operation(summary = "장바구니 상품 삭제", description = "장바구니 상품 삭제 시 사용하는 API 입니다.")
+    public ResponseEntity<ApiResponse<Void>> deleteProduct
+            (@RequestBody CartRequest request) {
+        cartService.deleteProduct(request);
+        return ResponseEntity.ok(ApiResponse.ok("삭제되었습니다."));
+    }
+
 }
