@@ -85,11 +85,19 @@ public class ProductService {
 
     public List<ProductListDTO> getProducts(String category) {
         List<Products> products;
-        if ("asc".equalsIgnoreCase(category)) {
+
+        if ("asc".equalsIgnoreCase(category)) { // 가격 낮은순 + 최신순
             products = productsRepository.findAllByDeletedAtIsNullOrderByPriceAscCreatedAtDesc();
-        } else if ("desc".equalsIgnoreCase(category)) {
+        } else if ("desc".equalsIgnoreCase(category)) { // 가격 높은순 + 최신순
             products = productsRepository.findAllByDeletedAtIsNullOrderByPriceDescCreatedAtDesc();
-        } else {
+
+        } else if ("like".equalsIgnoreCase(category)) { // 좋아요 많은 순 + 최신순
+            products = productsRepository.findAllByDeletedAtIsNullOrderByLikeCountDescCreatedAtDesc();
+        }
+        else if ("old".equalsIgnoreCase(category)) { // 오래된 순
+            products = productsRepository.findAllByDeletedAtIsNullOrderByCreatedAtAsc();
+        }
+        else { // 최신순
             products = productsRepository.findAllByDeletedAtIsNullOrderByCreatedAtDesc();
         }
 
@@ -270,5 +278,32 @@ public class ProductService {
         return new WishResponseDTO(wished);
     }
 
+    public List<ProductListDTO> searchProduct(String keyword) {
+        // 검색어 없으면 null 처리
+        if (keyword == null || keyword.isBlank()) {
+            return null; // null 반환
+        }
+        List<Products> products = productsRepository.findByDeletedAtIsNullAndNameContainingIgnoreCaseOrderByLikeCountDescCreatedAtDesc(keyword);
+
+        return products.stream().map(product -> {
+            String mainImage = null;
+            if (product.getImages() != null && !product.getImages().isEmpty()) {
+                mainImage = product.getImages().get(0).getImageUrl(); // 첫 번째 이미지
+            }
+
+            return ProductListDTO.builder()
+                    .id(product.getId())
+                    .seller(SellerSummaryDTO.builder()
+                            .id(product.getSeller().getId())
+                            .storeName(product.getSeller().getStoreName())
+                            .image(product.getSeller().getImage())
+                            .build())
+                    .name(product.getName())
+                    .price(product.getPrice())
+                    .likeCount(product.getLikeCount())
+                    .image(mainImage)
+                    .build();
+        }).collect(Collectors.toList());
+    }
 
 }

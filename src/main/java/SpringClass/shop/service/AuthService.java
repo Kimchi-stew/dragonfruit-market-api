@@ -1,11 +1,14 @@
 package SpringClass.shop.service;
 
+import SpringClass.shop.dto.AutoLoginRequest;
 import SpringClass.shop.dto.LoginRequest;
 import SpringClass.shop.dto.SignupRequest;
 import SpringClass.shop.dto.TokenResponse;
 import SpringClass.shop.entity.RefreshToken;
 import SpringClass.shop.entity.Users;
 import SpringClass.shop.enums.UserRole;
+import SpringClass.shop.exceptions.RefreshTokenNotFoundException;
+import SpringClass.shop.exceptions.UserNotFoundException;
 import SpringClass.shop.global.TokenProvider;
 import SpringClass.shop.repository.RefreshTokenRepository;
 import SpringClass.shop.repository.UsersRepository;
@@ -25,6 +28,7 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final TokenProvider tokenProvider;
     private final RefreshTokenRepository refreshTokenRepository;
+
 
     public void signup(SignupRequest request) {
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
@@ -63,5 +67,27 @@ public class AuthService {
                 .build();
 
         return result;
+    }
+
+    public TokenResponse autoLogin(AutoLoginRequest request) {
+        String refreshToken = request.getRefreshToken();
+
+        refreshTokenRepository.findById(refreshToken)
+                .orElseThrow(() -> new RefreshTokenNotFoundException("리프레시 토큰이 유효하지 않습니다."));
+
+        // 토큰으로 사용자 추출
+        String email = tokenProvider.getEmail(refreshToken);
+
+        // 기존 토큰 삭제
+        refreshTokenRepository.deleteById(refreshToken);
+
+        Users user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("계정이 존재하지 않습니다."));
+
+        // 새로운 accessToken,  refreshToken 생성
+        String newAccessToken = tokenProvider.createToken(email);
+        String newRefreshToken = tokenProvider.createRefreshToken(email);
+        refreshTokenRepository.save(new RefreshToken(newRefreshToken, LocalDateTime.now().plusDays(7), user.getEmail()));
+        return new TokenResponse(newAccessToken, newRefreshToken);
     }
 }

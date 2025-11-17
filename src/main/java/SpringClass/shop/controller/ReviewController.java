@@ -7,7 +7,6 @@ import SpringClass.shop.dto.ReviewResponseDTO;
 import SpringClass.shop.global.ApiResponse;
 import SpringClass.shop.service.ReviewService;
 import io.swagger.v3.oas.annotations.Operation;
-import jakarta.validation.constraints.FutureOrPresent;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -30,8 +29,9 @@ public class ReviewController {
 
     @GetMapping("/products/{productId}")
     @Operation(summary = "상품 리뷰 전체 조회", description = "상품 리뷰 전체 조회 시 사용하는 API 입니다.")
-    public ResponseEntity<ApiResponse<List<ReviewListDTO>>> getReviews(@PathVariable Long productId) {
-        List<ReviewListDTO> result = reviewService.getReviewLists(productId);
+    public ResponseEntity<ApiResponse<List<ReviewListDTO>>> getReviews
+            (@PathVariable Long productId, @RequestParam(required = false) String sort) {
+        List<ReviewListDTO> result = reviewService.getReviewLists(productId, sort);
         return ResponseEntity.ok(ApiResponse.ok(result, "조회되었습니다."));
     }
 

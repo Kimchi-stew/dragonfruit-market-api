@@ -1,5 +1,6 @@
 package SpringClass.shop.controller;
 
+import SpringClass.shop.dto.AutoLoginRequest;
 import SpringClass.shop.dto.LoginRequest;
 import SpringClass.shop.dto.SignupRequest;
 import SpringClass.shop.dto.TokenResponse;
@@ -32,6 +33,14 @@ public class AuthController {
     public ResponseEntity<ApiResponse<TokenResponse>> login(
             @RequestBody LoginRequest request) {
         TokenResponse result = authService.login(request);
+        return ResponseEntity.ok(ApiResponse.ok(result, "로그인이 완료되었습니다."));
+    }
+
+    @PostMapping("/auto-login")
+    @Operation(summary = "자동 로그인", description = "자동 로그인 시 사용하는 API 입니다.")
+    public ResponseEntity<ApiResponse<TokenResponse>> autoLogin
+            (@RequestBody AutoLoginRequest request) {
+        TokenResponse result = authService.autoLogin(request);
         return ResponseEntity.ok(ApiResponse.ok(result, "로그인이 완료되었습니다."));
     }
 

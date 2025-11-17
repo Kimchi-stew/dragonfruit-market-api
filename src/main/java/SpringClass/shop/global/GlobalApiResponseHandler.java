@@ -73,14 +73,11 @@ public class GlobalApiResponseHandler {
                 .body(ApiResponse.fail("장바구니에 상품이 없습니다."));
     }
 
-
-
-
-
-
-
-
-
-
+    // 리프레시 토큰이 없거나 유효하지 않을 때 처리
+    @ExceptionHandler(RefreshTokenNotFoundException.class)
+    public ResponseEntity<ApiResponse<Void>> handleRefreshTokenNotFoundException(RefreshTokenNotFoundException e) {
+        return ResponseEntity.status(403)
+                .body(ApiResponse.fail("리프레시 토큰이 유효하지 않습니다."));
+    }
 
 }

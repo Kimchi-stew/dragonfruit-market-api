@@ -41,6 +41,9 @@ public class Sellers {
     @Column(name="like_count")
     private int likeCount;
 
+    @Column(name="follow_count")
+    private int followCount;
+
     @Column(nullable = false)
     @CreatedDate
     private LocalDateTime createdAt;

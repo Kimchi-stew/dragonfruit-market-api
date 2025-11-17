@@ -25,8 +25,9 @@ public class SellerController {
 
     @GetMapping
     @Operation(summary = "전체 상점 조회", description = "전체 상점 조회 시 사용하는 API 입니다.")
-    public ResponseEntity<ApiResponse<List<SellerListDTO>>> getSellers() {
-        List<SellerListDTO> result = sellerService.getSellers();
+    public ResponseEntity<ApiResponse<List<SellerListDTO>>> getSellers
+            (@RequestParam(required = false) String sort) {
+        List<SellerListDTO> result = sellerService.getSellers(sort);
         return ResponseEntity.ok(ApiResponse.ok(result, "조회되었습니다."));
     }
 

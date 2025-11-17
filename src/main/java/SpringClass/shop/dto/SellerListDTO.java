@@ -16,4 +16,5 @@ public class SellerListDTO {
     private String storeName;
     private String image;
     private int likeCount;
+    private int followCount;
 }

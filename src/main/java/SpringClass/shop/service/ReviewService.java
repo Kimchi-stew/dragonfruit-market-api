@@ -70,8 +70,15 @@ public class ReviewService {
                 .build();
     }
 
-    public List<ReviewListDTO> getReviewLists(Long productId) {
-        List<Reviews> reviews = reviewRepository.findByProductIdAndDeletedAtIsNullOrderByCreatedAtDesc(productId);
+    public List<ReviewListDTO> getReviewLists(Long productId, String sort) {
+        List<Reviews> reviews;
+        if ("like".equalsIgnoreCase(sort)) {
+            reviews = reviewRepository.findByProductIdAndDeletedAtIsNullOrderByLikeCountDescCreatedAtDesc(productId);
+        } else if ("old".equalsIgnoreCase(sort)) {
+            reviews = reviewRepository.findByProductIdAndDeletedAtIsNullOrderByCreatedAtAsc(productId);
+        } else {
+            reviews = reviewRepository.findByProductIdAndDeletedAtIsNullOrderByCreatedAtDesc(productId);
+        }
         // 이미지 변환 (첫번째 이미지만 넣음)
         return reviews.stream().map(review -> {
             String mainImage = null;

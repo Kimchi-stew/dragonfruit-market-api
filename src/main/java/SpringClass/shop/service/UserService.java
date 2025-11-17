@@ -75,10 +75,17 @@ public class UserService {
                 .build();
     }
 
-    public List<ProductListDTO> getLikeProducts() {
+    public List<ProductListDTO> getLikeProducts(String sort) {
         // user 정보 가져오기 (baarer token에서 추출)
         Users user = authenticatedUserUtils.getCurrentUser();
-        List<ProductLikes> likedProducts = productLikeRepository.findByUserAndProduct_DeletedAtIsNull(user);
+        List<ProductLikes> likedProducts;
+        if ("like".equalsIgnoreCase(sort)) {
+            likedProducts = productLikeRepository.findByUserAndProduct_DeletedAtIsNullOrderByProduct_LikeCountDescCreatedAtDesc(user);
+        } else if ("old".equalsIgnoreCase(sort)) {
+            likedProducts = productLikeRepository.findByUserAndProduct_DeletedAtIsNullOrderByCreatedAtAsc(user);
+        } else {
+            likedProducts = productLikeRepository.findByUserAndProduct_DeletedAtIsNullOrderByCreatedAtDesc(user);
+        }
 
         return likedProducts.stream()
                 .map(like -> {
@@ -144,6 +151,7 @@ public class UserService {
                         .storeName(seller.getSellers().getStoreName())
                         .image(seller.getSellers().getImage())
                         .likeCount(seller.getSellers().getLikeCount())
+                        .followCount(seller.getSellers().getFollowCount())
                         .build())
                 .collect(Collectors.toList());
     }
@@ -157,6 +165,7 @@ public class UserService {
                         .storeName(sellerFollow.getSellers().getStoreName())
                         .image(sellerFollow.getSellers().getImage())
                         .likeCount(sellerFollow.getSellers().getLikeCount())
+                        .followCount(sellerFollow.getSellers().getFollowCount())
                         .build())
                 .collect(Collectors.toList());
     }
@@ -210,6 +219,7 @@ public class UserService {
                 .image(seller.getImage())
                 .createdAt(seller.getCreatedAt())
                 .likeCount(seller.getLikeCount())
+                .followCount(seller.getFollowCount())
                 .followed(followed)
                 .build();
 

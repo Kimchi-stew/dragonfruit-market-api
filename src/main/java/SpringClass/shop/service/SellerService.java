@@ -40,6 +40,8 @@ public class SellerService {
                 .storeName(request.getStoreName())
                 .description(request.getDescription())
                 .image(request.getImage())
+                .likeCount(0)
+                .followCount(0)
                 .createdAt(LocalDateTime.now())
                 .build();
         sellersRepository.save(sellers);
@@ -53,22 +55,31 @@ public class SellerService {
                 .description(savedSeller.getDescription())
                 .image(savedSeller.getImage())
                 .likeCount(0)
+                .followCount(0)
                 .followed(false)
                 .createdAt(savedSeller.getCreatedAt())
                 .build();
     }
 
-    public List<SellerListDTO> getSellers() {
+    public List<SellerListDTO> getSellers(String sort) {
         List<Sellers> sellers;
-        // 기본으로 최신순 정렬
-        sellers = sellersRepository.findAllByDeletedAtIsNullOrderByCreatedAtDesc();
-
+        if ("follow".equalsIgnoreCase(sort)) {
+            sellers = sellersRepository.findAllByDeletedAtIsNullOrderByFollowCountDescCreatedAtDesc();
+        } else if ("like".equalsIgnoreCase(sort)) {
+            sellers = sellersRepository.findAllByDeletedAtIsNullOrderByLikeCountDescCreatedAtDesc();
+        } else if ("old".equalsIgnoreCase(sort)) {
+            sellers = sellersRepository.findAllByDeletedAtIsNullOrderByCreatedAtAsc();
+        } else {
+            // 기본으로 최신순 정렬
+            sellers = sellersRepository.findAllByDeletedAtIsNullOrderByCreatedAtDesc();
+        }
         return sellers.stream()
                 .map(seller -> SellerListDTO.builder()
                         .id(seller.getId())
                         .storeName(seller.getStoreName())
                         .image(seller.getImage())
                         .likeCount(seller.getLikeCount())
+                        .followCount(seller.getFollowCount())
                         .build())
                 .collect(Collectors.toList());
     }
@@ -97,6 +108,7 @@ public class SellerService {
                 .storeName(savedSeller.getStoreName())
                 .description(savedSeller.getDescription())
                 .likeCount(savedSeller.getLikeCount())
+                .followCount(savedSeller.getFollowCount())
                 .followed(followed)
                 .image(savedSeller.getImage())
                 .createdAt(savedSeller.getCreatedAt())
@@ -116,6 +128,7 @@ public class SellerService {
                         .storeName(sellers.getStoreName())
                         .image(sellers.getImage())
                         .likeCount(sellers.getLikeCount())
+                        .followCount(sellers.getFollowCount())
                         .createdAt(sellers.getCreatedAt())
                         .followed(followed)
                         .build();
@@ -185,6 +198,8 @@ public class SellerService {
         Optional<SellerFollow> existing = sellerFollowRepository.findByUserAndSellers(user, sellers);
         if (existing.isPresent()) {
             sellerFollowRepository.delete(existing.get()); // 팔로우 취소
+            sellers.setFollowCount(sellers.getFollowCount() - 1);
+            sellersRepository.save(sellers);
             followed = false;
         } else {
             SellerFollow sellerFollow = SellerFollow.builder()
@@ -193,6 +208,8 @@ public class SellerService {
                     .createdAt(LocalDateTime.now())
                     .build();
             sellerFollowRepository.save(sellerFollow);
+            sellers.setFollowCount(sellers.getFollowCount() + 1);
+            sellersRepository.save(sellers);
             followed = true;
         }
         return new SellerFollowDTO(followed);

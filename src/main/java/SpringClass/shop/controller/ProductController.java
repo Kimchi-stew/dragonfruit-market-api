@@ -52,18 +52,26 @@ public class ProductController {
         return ResponseEntity.ok(ApiResponse.ok(result, "삭제되었습니다."));
     }
 
-    @PostMapping("likes/{id}")
+    @PostMapping("/likes/{id}")
     @Operation(summary = "상품좋아요", description = "상품 좋아요 시 사용하는 API 입니다.")
     public ResponseEntity<ApiResponse<LikesResponseDTO>> likeProduct(@PathVariable Long id) {
         LikesResponseDTO result = productService.likeProduct(id);
         return ResponseEntity.ok(ApiResponse.ok(result, "처리되었습니다."));
     }
 
-    @PostMapping("wish/{id}")
+    @PostMapping("/wish/{id}")
     @Operation(summary = "상품찜", description = "상품 찜 시 사용하는 API 입니다.")
     public ResponseEntity<ApiResponse<WishResponseDTO>> wishProduct(@PathVariable Long id) {
         WishResponseDTO result = productService.wishProduct(id);
         return ResponseEntity.ok(ApiResponse.ok(result, "처리되었습니다."));
+    }
+
+    @GetMapping("/search")
+    @Operation(summary = "상품검색", description = "상품 검색 시 사용하는 API 입니다.")
+    public ResponseEntity<ApiResponse<List<ProductListDTO>>> searchProduct
+            (@RequestParam(required = false) String keyword) {
+        List<ProductListDTO> result = productService.searchProduct(keyword);
+        return ResponseEntity.ok(ApiResponse.ok(result, "검색되었습니다."));
     }
 
 
