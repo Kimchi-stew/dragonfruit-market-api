@@ -1,6 +1,10 @@
 package SpringClass.shop.controller;
 
 import SpringClass.shop.dto.*;
+import SpringClass.shop.dto.Products.ProductDeleteDTO;
+import SpringClass.shop.dto.Products.ProductListDTO;
+import SpringClass.shop.dto.Products.ProductRequest;
+import SpringClass.shop.dto.Products.ProductResponse;
 import SpringClass.shop.global.ApiResponse;
 import SpringClass.shop.service.ProductService;
 import io.swagger.v3.oas.annotations.Operation;

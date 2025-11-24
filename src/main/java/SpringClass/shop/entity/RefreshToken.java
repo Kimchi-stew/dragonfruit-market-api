@@ -9,7 +9,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "refresh_token")
+@Table(name = "refresh_tokens")
 @Getter
 @Setter
 @NoArgsConstructor

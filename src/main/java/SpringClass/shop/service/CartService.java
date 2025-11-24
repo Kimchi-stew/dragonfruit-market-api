@@ -1,6 +1,10 @@
 package SpringClass.shop.service;
 
-import SpringClass.shop.dto.*;
+import SpringClass.shop.dto.Cart.CartItemResponse;
+import SpringClass.shop.dto.Cart.CartRequest;
+import SpringClass.shop.dto.Cart.CartResponse;
+import SpringClass.shop.dto.Products.ProductSummaryDTO;
+import SpringClass.shop.dto.Sellers.SellerSummaryDTO;
 import SpringClass.shop.entity.CartItems;
 import SpringClass.shop.entity.Products.Products;
 import SpringClass.shop.entity.Users;

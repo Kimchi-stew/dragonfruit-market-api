@@ -1,9 +1,9 @@
 package SpringClass.shop.controller;
 
-import SpringClass.shop.dto.ReviewDeleteDTO;
-import SpringClass.shop.dto.ReviewListDTO;
-import SpringClass.shop.dto.ReviewRequest;
-import SpringClass.shop.dto.ReviewResponseDTO;
+import SpringClass.shop.dto.Reviews.ReviewDeleteDTO;
+import SpringClass.shop.dto.Reviews.ReviewListDTO;
+import SpringClass.shop.dto.Reviews.ReviewRequest;
+import SpringClass.shop.dto.Reviews.ReviewResponseDTO;
 import SpringClass.shop.global.ApiResponse;
 import SpringClass.shop.service.ReviewService;
 import io.swagger.v3.oas.annotations.Operation;

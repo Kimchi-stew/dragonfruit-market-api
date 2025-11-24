@@ -1,6 +1,7 @@
 package SpringClass.shop.controller;
 
 import SpringClass.shop.dto.*;
+import SpringClass.shop.dto.Sellers.*;
 import SpringClass.shop.global.ApiResponse;
 import SpringClass.shop.service.SellerService;
 import io.swagger.v3.oas.annotations.Operation;

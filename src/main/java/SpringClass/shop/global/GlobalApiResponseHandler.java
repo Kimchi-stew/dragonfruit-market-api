@@ -80,4 +80,14 @@ public class GlobalApiResponseHandler {
                 .body(ApiResponse.fail("리프레시 토큰이 유효하지 않습니다."));
     }
 
+    // 관리자 권한이 아닐 때 처리
+    @ExceptionHandler(AdminPermissionRequiredException.class)
+    public ResponseEntity<ApiResponse<Void>> handleAdminPermissionRequiredException(AdminPermissionRequiredException e) {
+        return ResponseEntity.status(403)
+                .body(ApiResponse.fail("관리자 권한이 아닙니다."));
+    }
+
+
+
+
 }

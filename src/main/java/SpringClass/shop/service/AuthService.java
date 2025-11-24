@@ -1,17 +1,20 @@
 package SpringClass.shop.service;
 
-import SpringClass.shop.dto.AutoLoginRequest;
-import SpringClass.shop.dto.LoginRequest;
-import SpringClass.shop.dto.SignupRequest;
-import SpringClass.shop.dto.TokenResponse;
+import SpringClass.shop.dto.Auth.AutoLoginRequest;
+import SpringClass.shop.dto.Auth.LoginRequest;
+import SpringClass.shop.dto.Users.SignupRequest;
+import SpringClass.shop.dto.Auth.TokenResponse;
 import SpringClass.shop.entity.RefreshToken;
 import SpringClass.shop.entity.Users;
 import SpringClass.shop.enums.UserRole;
 import SpringClass.shop.exceptions.RefreshTokenNotFoundException;
+import SpringClass.shop.exceptions.UserAlreadyExistException;
 import SpringClass.shop.exceptions.UserNotFoundException;
 import SpringClass.shop.global.TokenProvider;
 import SpringClass.shop.repository.RefreshTokenRepository;
 import SpringClass.shop.repository.UsersRepository;
+import SpringClass.shop.security.AuthenticatedUserUtils;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -28,11 +31,11 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final TokenProvider tokenProvider;
     private final RefreshTokenRepository refreshTokenRepository;
-
+    private final AuthenticatedUserUtils authenticatedUserUtils;
 
     public void signup(SignupRequest request) {
         if (userRepository.findByEmail(request.getEmail()).isPresent()) {
-            throw new IllegalArgumentException("이미 존재하는 계정입니다.");
+            throw new UserAlreadyExistException("이미 존재하는 계정입니다.");
         }
 
         Users user = Users.builder()
@@ -89,5 +92,12 @@ public class AuthService {
         String newRefreshToken = tokenProvider.createRefreshToken(email);
         refreshTokenRepository.save(new RefreshToken(newRefreshToken, LocalDateTime.now().plusDays(7), user.getEmail()));
         return new TokenResponse(newAccessToken, newRefreshToken);
+    }
+
+    @Transactional
+    public void logOut() {
+        Users user = authenticatedUserUtils.getCurrentUser();
+        // 토큰 삭제
+        refreshTokenRepository.deleteByEmail(user.getEmail());
     }
 }

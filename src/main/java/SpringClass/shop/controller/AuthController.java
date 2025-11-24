@@ -1,9 +1,9 @@
 package SpringClass.shop.controller;
 
-import SpringClass.shop.dto.AutoLoginRequest;
-import SpringClass.shop.dto.LoginRequest;
-import SpringClass.shop.dto.SignupRequest;
-import SpringClass.shop.dto.TokenResponse;
+import SpringClass.shop.dto.Auth.AutoLoginRequest;
+import SpringClass.shop.dto.Auth.LoginRequest;
+import SpringClass.shop.dto.Users.SignupRequest;
+import SpringClass.shop.dto.Auth.TokenResponse;
 import SpringClass.shop.global.ApiResponse;
 import SpringClass.shop.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -42,6 +42,13 @@ public class AuthController {
             (@RequestBody AutoLoginRequest request) {
         TokenResponse result = authService.autoLogin(request);
         return ResponseEntity.ok(ApiResponse.ok(result, "로그인이 완료되었습니다."));
+    }
+
+    @PostMapping("/log-out")
+    @Operation(summary = "로그아웃", description = "로그아웃 시 사용하는 API 입니다.")
+    public ResponseEntity<ApiResponse<Void>> logOut() {
+        authService.logOut();
+        return ResponseEntity.ok(ApiResponse.ok("로그아웃 되었습니다."));
     }
 
 }

@@ -1,5 +1,11 @@
 package SpringClass.shop.controller;
-import SpringClass.shop.dto.*;
+import SpringClass.shop.dto.Products.ProductListDTO;
+import SpringClass.shop.dto.Reviews.ReviewListDTO;
+import SpringClass.shop.dto.Sellers.SellerListDTO;
+import SpringClass.shop.dto.Sellers.SellerResponse;
+import SpringClass.shop.dto.Users.UserPasswordDTO;
+import SpringClass.shop.dto.Users.UserProfileRequest;
+import SpringClass.shop.dto.Users.UserProfileResponse;
 import SpringClass.shop.global.ApiResponse;
 import SpringClass.shop.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;

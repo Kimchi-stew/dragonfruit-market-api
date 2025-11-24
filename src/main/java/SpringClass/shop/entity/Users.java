@@ -55,20 +55,4 @@ public class Users {
     @Column(nullable = false)
     @LastModifiedDate
     private LocalDateTime updatedAt;
-
-//    // 관계
-//    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
-//    private Sellers sellers;
-//
-//    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-//    private List<Orders> orders;
-//
-//    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-//    private List<Reviews> reviews;
-//
-//    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-//    private List<ReviewLikes> reviewLikes;
-//
-//    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-//    private List<ProductLikes> productLikes;
 }

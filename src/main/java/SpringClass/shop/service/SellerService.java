@@ -2,6 +2,7 @@ package SpringClass.shop.service;
 
 
 import SpringClass.shop.dto.*;
+import SpringClass.shop.dto.Sellers.*;
 import SpringClass.shop.entity.Products.Products;
 import SpringClass.shop.entity.Sellers.SellerFollow;
 import SpringClass.shop.entity.Sellers.SellerLikes;

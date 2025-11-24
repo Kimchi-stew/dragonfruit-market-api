@@ -1,6 +1,14 @@
 package SpringClass.shop.service;
 
-import SpringClass.shop.dto.*;
+import SpringClass.shop.dto.Products.ProductListDTO;
+import SpringClass.shop.dto.Reviews.ReviewListDTO;
+import SpringClass.shop.dto.Sellers.SellerListDTO;
+import SpringClass.shop.dto.Sellers.SellerResponse;
+import SpringClass.shop.dto.Sellers.SellerSummaryDTO;
+import SpringClass.shop.dto.Users.UserPasswordDTO;
+import SpringClass.shop.dto.Users.UserProfileRequest;
+import SpringClass.shop.dto.Users.UserProfileResponse;
+import SpringClass.shop.dto.Users.UserSummaryDTO;
 import SpringClass.shop.entity.Products.ProductLikes;
 import SpringClass.shop.entity.Products.ProductWish;
 import SpringClass.shop.entity.Products.Products;

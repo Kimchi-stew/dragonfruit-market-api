@@ -1,13 +1,17 @@
 package SpringClass.shop.service;
 
-import SpringClass.shop.dto.*;
+import SpringClass.shop.dto.Products.ProductSummaryDTO;
+import SpringClass.shop.dto.Reviews.ReviewDeleteDTO;
+import SpringClass.shop.dto.Reviews.ReviewListDTO;
+import SpringClass.shop.dto.Reviews.ReviewRequest;
+import SpringClass.shop.dto.Reviews.ReviewResponseDTO;
+import SpringClass.shop.dto.Users.UserSummaryDTO;
 import SpringClass.shop.entity.Products.Products;
 import SpringClass.shop.entity.Reviews.ReviewImages;
 import SpringClass.shop.entity.Reviews.Reviews;
 import SpringClass.shop.entity.Users;
 import SpringClass.shop.exceptions.ForbiddenException;
 import SpringClass.shop.exceptions.ReviewNotFoundException;
-import SpringClass.shop.exceptions.SellerNotFoundException;
 import SpringClass.shop.repository.ProductsRepository;
 import SpringClass.shop.repository.ReviewImagesRepository;
 import SpringClass.shop.repository.ReviewRepository;
