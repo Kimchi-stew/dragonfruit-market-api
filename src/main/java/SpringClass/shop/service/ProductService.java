@@ -1,10 +1,12 @@
 package SpringClass.shop.service;
 import SpringClass.shop.dto.*;
+import SpringClass.shop.dto.Admin.CategoryResponse;
 import SpringClass.shop.dto.Products.ProductDeleteDTO;
 import SpringClass.shop.dto.Products.ProductListDTO;
 import SpringClass.shop.dto.Products.ProductRequest;
 import SpringClass.shop.dto.Products.ProductResponse;
 import SpringClass.shop.dto.Sellers.SellerSummaryDTO;
+import SpringClass.shop.entity.Categories;
 import SpringClass.shop.entity.Products.ProductImages;
 import SpringClass.shop.entity.Products.ProductLikes;
 import SpringClass.shop.entity.Products.ProductWish;
@@ -32,6 +34,7 @@ public class ProductService {
     private final ProductsRepository productsRepository;
     private final ProductLikeRepository productLikeRepository;
     private final ProductWishRepository productWishRepository;
+    private final CategoriesRepository categoriesRepository;
 
     public ProductResponse createProduct(ProductRequest request) {
         // user 정보 가져오기 (bearer token에서 추출)
@@ -309,6 +312,20 @@ public class ProductService {
                     .image(mainImage)
                     .build();
         }).collect(Collectors.toList());
+    }
+
+    public List<CategoryResponse> getCategories() {
+        List<Categories> categories = categoriesRepository.findAll();
+
+        List<CategoryResponse> response = categories.stream()
+                .map(category -> CategoryResponse.builder()
+                        .id(category.getId())
+                        .name(category.getName())
+                        .createdAt(category.getCreatedAt())
+                        .build())
+                .collect(Collectors.toList());
+
+        return response;
     }
 
 }

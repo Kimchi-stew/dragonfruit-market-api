@@ -1,6 +1,7 @@
 package SpringClass.shop.controller;
 
 import SpringClass.shop.dto.*;
+import SpringClass.shop.dto.Admin.CategoryResponse;
 import SpringClass.shop.dto.Products.ProductDeleteDTO;
 import SpringClass.shop.dto.Products.ProductListDTO;
 import SpringClass.shop.dto.Products.ProductRequest;
@@ -76,6 +77,13 @@ public class ProductController {
             (@RequestParam(required = false) String keyword) {
         List<ProductListDTO> result = productService.searchProduct(keyword);
         return ResponseEntity.ok(ApiResponse.ok(result, "검색되었습니다."));
+    }
+
+    @GetMapping("/category")
+    @Operation(summary = "상품 카테고리 전체 조회", description = "카테고리 전체 조회 시 사용하는 API 입니다.")
+    public ResponseEntity<ApiResponse<List<CategoryResponse>>> getCategories() {
+        List<CategoryResponse> result = productService.getCategories();
+        return ResponseEntity.ok(ApiResponse.ok(result, "조회되었습니다."));
     }
 
 

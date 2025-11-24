@@ -87,6 +87,22 @@ public class GlobalApiResponseHandler {
                 .body(ApiResponse.fail("관리자 권한이 아닙니다."));
     }
 
+    // 이미 존재하는 카테고리 이름 처리
+    @ExceptionHandler(CategoryNameAlreadyExistException.class)
+    public ResponseEntity<ApiResponse<Void>> handleCategoryNameAlreadyExistException(CategoryNameAlreadyExistException e) {
+        return ResponseEntity.status(409)
+                .body(ApiResponse.fail("이미 존재하는 이름입니다."));
+    }
+
+    // 존재하지 않는 카테고리 처리
+    @ExceptionHandler(CategoryNotFoundException.class)
+    public ResponseEntity<ApiResponse<Void>> handleCategoryNotFoundException(CategoryNotFoundException e) {
+        return ResponseEntity.status(404)
+                .body(ApiResponse.fail("존재하지 않는 카테고리입니다."));
+    }
+
+
+
 
 
 
