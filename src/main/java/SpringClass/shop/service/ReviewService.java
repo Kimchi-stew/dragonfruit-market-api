@@ -1,5 +1,6 @@
 package SpringClass.shop.service;
 
+import SpringClass.shop.dto.LikesResponseDTO;
 import SpringClass.shop.dto.Products.ProductSummaryDTO;
 import SpringClass.shop.dto.Reviews.ReviewDeleteDTO;
 import SpringClass.shop.dto.Reviews.ReviewListDTO;
@@ -8,12 +9,14 @@ import SpringClass.shop.dto.Reviews.ReviewResponseDTO;
 import SpringClass.shop.dto.Users.UserSummaryDTO;
 import SpringClass.shop.entity.Products.Products;
 import SpringClass.shop.entity.Reviews.ReviewImages;
+import SpringClass.shop.entity.Reviews.ReviewLikes;
 import SpringClass.shop.entity.Reviews.Reviews;
 import SpringClass.shop.entity.Users;
 import SpringClass.shop.exceptions.ForbiddenException;
 import SpringClass.shop.exceptions.ReviewNotFoundException;
 import SpringClass.shop.repository.ProductsRepository;
 import SpringClass.shop.repository.ReviewImagesRepository;
+import SpringClass.shop.repository.ReviewLikesRepository;
 import SpringClass.shop.repository.ReviewRepository;
 import SpringClass.shop.security.AuthenticatedUserUtils;
 import lombok.RequiredArgsConstructor;
@@ -21,6 +24,7 @@ import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -30,6 +34,8 @@ public class ReviewService {
     private final ReviewRepository reviewRepository;
     private final ProductsRepository productsRepository;
     private final ReviewImagesRepository reviewImagesRepository;
+    private final ReviewLikesRepository reviewLikesRepository;
+    private final NotificationService notificationService;
 
     public ReviewResponseDTO createReview(Long productId, ReviewRequest request) {
         Users user = authenticatedUserUtils.getCurrentUser();
@@ -192,6 +198,33 @@ public class ReviewService {
                 .likeCount(reviews.getLikeCount())
                 .deletedAt(reviews.getDeletedAt())
                 .build();
+    }
 
+    public LikesResponseDTO likeReview(Long reviewId) {
+        Users users = authenticatedUserUtils.getCurrentUser();
+
+        Reviews reviews = reviewRepository.findByIdAndDeletedAtIsNull(reviewId)
+                .orElseThrow(() -> new ReviewNotFoundException("해당 리뷰를 찾을 수 없습니다."));
+        // 좋아요 여부 확인
+        Optional<ReviewLikes> existing = reviewLikesRepository.findByUserAndReview(users, reviews);
+        boolean liked;
+        if (existing.isPresent()) {
+            reviewLikesRepository.delete(existing.get());
+
+            reviews.setLikeCount(reviews.getLikeCount() - 1);
+            liked = false;
+        } else {
+            ReviewLikes reviewLikes = ReviewLikes.builder()
+                    .review(reviews)
+                    .user(users)
+                    .build();
+            reviewLikesRepository.save(reviewLikes);
+            reviews.setLikeCount(reviews.getLikeCount() + 1);
+            liked = true;
+            // 알림 전송
+            notificationService.sendReviewLikeNotification(reviews, users.getNickname());
+        }
+        reviewRepository.save(reviews);
+        return new LikesResponseDTO(liked, reviews.getLikeCount());
     }
 }

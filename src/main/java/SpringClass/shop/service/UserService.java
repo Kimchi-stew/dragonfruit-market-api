@@ -5,10 +5,7 @@ import SpringClass.shop.dto.Reviews.ReviewListDTO;
 import SpringClass.shop.dto.Sellers.SellerListDTO;
 import SpringClass.shop.dto.Sellers.SellerResponse;
 import SpringClass.shop.dto.Sellers.SellerSummaryDTO;
-import SpringClass.shop.dto.Users.UserPasswordDTO;
-import SpringClass.shop.dto.Users.UserProfileRequest;
-import SpringClass.shop.dto.Users.UserProfileResponse;
-import SpringClass.shop.dto.Users.UserSummaryDTO;
+import SpringClass.shop.dto.Users.*;
 import SpringClass.shop.entity.Products.ProductLikes;
 import SpringClass.shop.entity.Products.ProductWish;
 import SpringClass.shop.entity.Products.Products;
@@ -17,8 +14,10 @@ import SpringClass.shop.entity.Sellers.SellerFollow;
 import SpringClass.shop.entity.Sellers.SellerLikes;
 import SpringClass.shop.entity.Sellers.Sellers;
 import SpringClass.shop.entity.Users;
+import SpringClass.shop.enums.UserRole;
 import SpringClass.shop.exceptions.PasswordMismatchException;
 import SpringClass.shop.exceptions.SellerNotFoundException;
+import SpringClass.shop.exceptions.UserAlreadyExistException;
 import SpringClass.shop.repository.*;
 import SpringClass.shop.security.AuthenticatedUserUtils;
 import lombok.RequiredArgsConstructor;
@@ -41,6 +40,23 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final ReviewRepository reviewRepository;
     private final SellersRepository sellersRepository;
+
+
+    public void signup(SignupRequest request) {
+        if (usersRepository.findByEmail(request.getEmail()).isPresent()) {
+            throw new UserAlreadyExistException("이미 존재하는 계정입니다.");
+        }
+
+        Users user = Users.builder()
+                .email(request.getEmail())
+                .password(passwordEncoder.encode(request.getPassword()))
+                .nickname(request.getNickname())
+                .gender(request.getGender())
+                .userRole(UserRole.USER)
+                .profileImage(request.getProfileImage())
+                .build();
+        usersRepository.save(user);
+    }
 
     public UserProfileResponse getProfile() {
         Users user = authenticatedUserUtils.getCurrentUser();

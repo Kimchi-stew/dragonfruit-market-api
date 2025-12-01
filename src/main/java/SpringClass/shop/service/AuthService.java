@@ -2,13 +2,10 @@ package SpringClass.shop.service;
 
 import SpringClass.shop.dto.Auth.AutoLoginRequest;
 import SpringClass.shop.dto.Auth.LoginRequest;
-import SpringClass.shop.dto.Users.SignupRequest;
 import SpringClass.shop.dto.Auth.TokenResponse;
 import SpringClass.shop.entity.RefreshToken;
 import SpringClass.shop.entity.Users;
-import SpringClass.shop.enums.UserRole;
 import SpringClass.shop.exceptions.RefreshTokenNotFoundException;
-import SpringClass.shop.exceptions.UserAlreadyExistException;
 import SpringClass.shop.exceptions.UserNotFoundException;
 import SpringClass.shop.global.TokenProvider;
 import SpringClass.shop.repository.RefreshTokenRepository;
@@ -33,21 +30,7 @@ public class AuthService {
     private final RefreshTokenRepository refreshTokenRepository;
     private final AuthenticatedUserUtils authenticatedUserUtils;
 
-    public void signup(SignupRequest request) {
-        if (userRepository.findByEmail(request.getEmail()).isPresent()) {
-            throw new UserAlreadyExistException("이미 존재하는 계정입니다.");
-        }
 
-        Users user = Users.builder()
-                .email(request.getEmail())
-                .password(passwordEncoder.encode(request.getPassword()))
-                .nickname(request.getNickname())
-                .gender(request.getGender())
-                .userRole(UserRole.USER)
-                .profileImage(request.getProfileImage())
-                .build();
-        userRepository.save(user);
-    }
 
     public TokenResponse login(LoginRequest request) {
         // 이메일, 비번 검증

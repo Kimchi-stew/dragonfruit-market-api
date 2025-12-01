@@ -7,12 +7,10 @@ import SpringClass.shop.dto.Products.ProductRequest;
 import SpringClass.shop.dto.Products.ProductResponse;
 import SpringClass.shop.dto.Sellers.SellerSummaryDTO;
 import SpringClass.shop.entity.Categories;
-import SpringClass.shop.entity.Products.ProductImages;
-import SpringClass.shop.entity.Products.ProductLikes;
-import SpringClass.shop.entity.Products.ProductWish;
-import SpringClass.shop.entity.Products.Products;
+import SpringClass.shop.entity.Products.*;
 import SpringClass.shop.entity.Sellers.Sellers;
 import SpringClass.shop.entity.Users;
+import SpringClass.shop.exceptions.CategoryNotFoundException;
 import SpringClass.shop.exceptions.ForbiddenException;
 import SpringClass.shop.exceptions.ProductNotFoundException;
 import SpringClass.shop.exceptions.SellerNotFoundException;
@@ -35,6 +33,7 @@ public class ProductService {
     private final ProductLikeRepository productLikeRepository;
     private final ProductWishRepository productWishRepository;
     private final CategoriesRepository categoriesRepository;
+    private final ProductCategoriesRepository productCategoriesRepository;
 
     public ProductResponse createProduct(ProductRequest request) {
         // user 정보 가져오기 (bearer token에서 추출)
@@ -43,6 +42,10 @@ public class ProductService {
         // 판매자(상점) 등록을 안 하면 오류
         Sellers seller = sellersRepository.findByUser(user)
                 .orElseThrow(() -> new SellerNotFoundException("판매자를 찾을 수 없습니다."));
+
+        // 존재하지 않는 카테고리면 오류
+        Categories categories = categoriesRepository.findByName(request.getCategory())
+                .orElseThrow(() -> new CategoryNotFoundException("존재하지 않는 카테고리 입니다."));
 
         Products products = Products.builder()
                 .name(request.getName())
@@ -53,6 +56,13 @@ public class ProductService {
                 .stock(request.getStock())
                 .createdAt(LocalDateTime.now())
                 .build();
+
+        // 카테고리 저장
+        ProductCategories productCategories = ProductCategories.builder()
+                .product(products)
+                .category(categories)
+                .build();
+        productCategoriesRepository.save(productCategories);
 
         // 이미지 변환 및 저장
         if (request.getImages() != null && !request.getImages().isEmpty()) {
@@ -82,6 +92,7 @@ public class ProductService {
                 .description(savedProduct.getDescription())
                 .likeCount(savedProduct.getLikeCount())
                 .wished(false) // 신규 상품이므로
+                .category(request.getCategory())
                 .stock(savedProduct.getStock())
                 .images(savedProduct.getImages().stream()
                         .map(ProductImages::getImageUrl)
@@ -146,6 +157,7 @@ public class ProductService {
         product.setDescription(request.getDescription());
         product.setStock(request.getStock());
 
+
         // 이미지 변환 및 저장
         if (request.getImages() != null && !request.getImages().isEmpty()) {
             List<ProductImages> imageEntities = request.getImages().stream()
@@ -163,6 +175,13 @@ public class ProductService {
         Products savedProduct = productsRepository.save(product);
         // 찜 여부 판별
         boolean wished = productWishRepository.existsByUserAndProduct(user, product);
+        // 카테고리 가져오기
+        ProductCategories productCategories = productCategoriesRepository.findByProduct(product)
+                .orElseThrow(() -> new CategoryNotFoundException("카테고리가 존재하지 않습니다."));
+        Categories categories = categoriesRepository.findById(productCategories.getProduct().getId())
+                .orElseThrow(() -> new CategoryNotFoundException("카테고리가 존재하지 않습니다."));
+        categories.setName(request.getName());
+        categoriesRepository.save(categories);
         return ProductResponse.builder()
                 .id(savedProduct.getId())
                 .seller(SellerSummaryDTO.builder()
@@ -175,6 +194,7 @@ public class ProductService {
                 .description(savedProduct.getDescription())
                 .stock(savedProduct.getStock())
                 .wished(wished)
+                .category(productCategories.getProduct().getName())
                 .images(savedProduct.getImages().stream()
                         .map(ProductImages::getImageUrl)
                         .collect(Collectors.toList()))
@@ -192,6 +212,11 @@ public class ProductService {
         Products product = productsRepository.findByIdAndDeletedAtIsNull(id)
                 .orElseThrow(() -> new ProductNotFoundException("상품을 찾을 수 없습니다."));
         boolean wished = productWishRepository.existsByUserAndProduct(user, product);
+
+        // 카테고리 가져오기
+        ProductCategories productCategories = productCategoriesRepository.findByProduct(product)
+                .orElseThrow(() -> new CategoryNotFoundException("카테고리가 존재하지 않습니다."));
+
         return ProductResponse.builder()
                 .id(product.getId())
                 .name(product.getName())
@@ -202,6 +227,7 @@ public class ProductService {
                 .price(product.getPrice())
                 .likeCount(product.getLikeCount())
                 .wished(wished)
+                .category(productCategories.getCategory().getName())
                 .build();
     }
 
@@ -222,6 +248,8 @@ public class ProductService {
         String firstImage = savedProduct.getImages() != null && !savedProduct.getImages().isEmpty()
                 ? savedProduct.getImages().get(0).getImageUrl() // 첫 번째 이미지 URL 사용
                 : null;
+        // 카테고리 삭제
+        productCategoriesRepository.deleteByProduct(savedProduct);
 
         return ProductDeleteDTO.builder()
                 .name(savedProduct.getName())

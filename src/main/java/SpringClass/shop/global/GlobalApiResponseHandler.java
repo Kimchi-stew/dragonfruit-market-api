@@ -101,6 +101,15 @@ public class GlobalApiResponseHandler {
                 .body(ApiResponse.fail("존재하지 않는 카테고리입니다."));
     }
 
+    // 알림 전송 실패 처리
+    @ExceptionHandler(NotificationSendException.class)
+    public ResponseEntity<ApiResponse<Void>> handleNotificationSendException(NotificationSendException e) {
+        return ResponseEntity.status(500)
+                .body(ApiResponse.fail("알림이 전송 실패 했습니다."));
+    }
+
+
+
 
 
 

@@ -3,6 +3,7 @@ import SpringClass.shop.dto.Products.ProductListDTO;
 import SpringClass.shop.dto.Reviews.ReviewListDTO;
 import SpringClass.shop.dto.Sellers.SellerListDTO;
 import SpringClass.shop.dto.Sellers.SellerResponse;
+import SpringClass.shop.dto.Users.SignupRequest;
 import SpringClass.shop.dto.Users.UserPasswordDTO;
 import SpringClass.shop.dto.Users.UserProfileRequest;
 import SpringClass.shop.dto.Users.UserProfileResponse;
@@ -20,6 +21,14 @@ import java.util.List;
 @RequestMapping("/api/users")
 public class UserController {
     private final UserService userService;
+
+    @PostMapping("/signup")
+    @Operation(summary = "회원가입", description = "회원가입 시 사용하는 API 입니다.")
+    public ResponseEntity<ApiResponse<Void>> signup
+            (@RequestBody SignupRequest request) {
+        userService.signup(request);
+        return ResponseEntity.ok(ApiResponse.ok("회원가입이 완료되었습니다."));
+    }
 
     @GetMapping("/profile")
     @Operation(summary = "내 프로필 조회", description = "프로필 조회 시 사용하는 API 입니다.")

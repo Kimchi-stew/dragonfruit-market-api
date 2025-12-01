@@ -1,5 +1,6 @@
 package SpringClass.shop.controller;
 
+import SpringClass.shop.dto.LikesResponseDTO;
 import SpringClass.shop.dto.Reviews.ReviewDeleteDTO;
 import SpringClass.shop.dto.Reviews.ReviewListDTO;
 import SpringClass.shop.dto.Reviews.ReviewRequest;
@@ -56,6 +57,13 @@ public class ReviewController {
     public ResponseEntity<ApiResponse<ReviewDeleteDTO>> deleteReview(@PathVariable Long reviewId) {
         ReviewDeleteDTO result = reviewService.deleteReview(reviewId);
         return ResponseEntity.ok(ApiResponse.ok(result, "삭제되었습니다."));
+    }
+
+    @PostMapping("/likes/{reviewId}")
+    @Operation(summary = "리뷰 좋아요", description = "리뷰 좋아요 시 사용하는 API 입니다.")
+    public ResponseEntity<ApiResponse<LikesResponseDTO>> likeReview(@PathVariable Long reviewId) {
+        LikesResponseDTO result = reviewService.likeReview(reviewId);
+        return ResponseEntity.ok(ApiResponse.ok(result, "처리되었습니다."));
     }
 
 

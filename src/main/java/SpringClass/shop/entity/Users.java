@@ -55,4 +55,6 @@ public class Users {
     @Column(nullable = false)
     @LastModifiedDate
     private LocalDateTime updatedAt;
+
+   
 }
