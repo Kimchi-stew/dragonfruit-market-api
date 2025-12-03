@@ -12,6 +12,8 @@ import SpringClass.shop.entity.Reviews.ReviewImages;
 import SpringClass.shop.entity.Reviews.ReviewLikes;
 import SpringClass.shop.entity.Reviews.Reviews;
 import SpringClass.shop.entity.Users;
+import SpringClass.shop.enums.RatingSortType;
+import SpringClass.shop.enums.SortType;
 import SpringClass.shop.exceptions.ForbiddenException;
 import SpringClass.shop.exceptions.ReviewNotFoundException;
 import SpringClass.shop.repository.ProductsRepository;
@@ -80,15 +82,45 @@ public class ReviewService {
                 .build();
     }
 
-    public List<ReviewListDTO> getReviewLists(Long productId, String sort) {
+    public List<ReviewListDTO> getReviewLists(Long productId, SortType sortType, RatingSortType ratingSortType) {
         List<Reviews> reviews;
-        if ("like".equalsIgnoreCase(sort)) {
-            reviews = reviewRepository.findByProductIdAndDeletedAtIsNullOrderByLikeCountDescCreatedAtDesc(productId);
-        } else if ("old".equalsIgnoreCase(sort)) {
-            reviews = reviewRepository.findByProductIdAndDeletedAtIsNullOrderByCreatedAtAsc(productId);
+
+        if (ratingSortType != null && sortType != null) {
+            if (ratingSortType == RatingSortType.DESC) {
+                if (sortType == SortType.POPULAR) {
+                    reviews = reviewRepository.findByProductIdAndDeletedAtIsNullOrderByRatingDescLikeCountDescCreatedAtDesc(productId);
+                } else if (sortType == SortType.OLDEST) {
+                    reviews = reviewRepository.findByProductIdAndDeletedAtIsNullOrderByRatingDescCreatedAtAsc(productId);
+                } else {
+                    reviews = reviewRepository.findByProductIdAndDeletedAtIsNullOrderByRatingDescCreatedAtDesc(productId);
+                }
+            } else {
+                if (sortType == SortType.POPULAR) {
+                    reviews = reviewRepository.findByProductIdAndDeletedAtIsNullOrderByRatingAscLikeCountDescCreatedAtDesc(productId);
+                } else if (sortType == SortType.OLDEST) {
+                    reviews = reviewRepository.findByProductIdAndDeletedAtIsNullOrderByRatingAscCreatedAtAsc(productId);
+                } else {
+                    reviews = reviewRepository.findByProductIdAndDeletedAtIsNullOrderByRatingAscCreatedAtDesc(productId);
+                }
+            }
+        } else if (ratingSortType != null && sortType == null) {
+            if (ratingSortType == RatingSortType.DESC) {
+                reviews = reviewRepository.findByProductIdAndDeletedAtIsNullOrderByRatingDescCreatedAtDesc(productId);
+            } else {
+                reviews = reviewRepository.findByProductIdAndDeletedAtIsNullOrderByRatingAscCreatedAtDesc(productId);
+            }
+        } else if (ratingSortType == null  && sortType != null) {
+            if (sortType == SortType.POPULAR) {
+                reviews = reviewRepository.findByProductIdAndDeletedAtIsNullOrderByLikeCountDescCreatedAtDesc(productId);
+            } else if (sortType == SortType.OLDEST) {
+                reviews = reviewRepository.findByProductIdAndDeletedAtIsNullOrderByCreatedAtAsc(productId);
+            } else {
+                reviews = reviewRepository.findByProductIdAndDeletedAtIsNullOrderByCreatedAtDesc(productId);
+            }
         } else {
             reviews = reviewRepository.findByProductIdAndDeletedAtIsNullOrderByCreatedAtDesc(productId);
         }
+
         // 이미지 변환 (첫번째 이미지만 넣음)
         return reviews.stream().map(review -> {
             String mainImage = null;

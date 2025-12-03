@@ -5,6 +5,8 @@ import SpringClass.shop.dto.Reviews.ReviewDeleteDTO;
 import SpringClass.shop.dto.Reviews.ReviewListDTO;
 import SpringClass.shop.dto.Reviews.ReviewRequest;
 import SpringClass.shop.dto.Reviews.ReviewResponseDTO;
+import SpringClass.shop.enums.RatingSortType;
+import SpringClass.shop.enums.SortType;
 import SpringClass.shop.global.ApiResponse;
 import SpringClass.shop.service.ReviewService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -31,8 +33,10 @@ public class ReviewController {
     @GetMapping("/products/{productId}")
     @Operation(summary = "상품 리뷰 전체 조회", description = "상품 리뷰 전체 조회 시 사용하는 API 입니다.")
     public ResponseEntity<ApiResponse<List<ReviewListDTO>>> getReviews
-            (@PathVariable Long productId, @RequestParam(required = false) String sort) {
-        List<ReviewListDTO> result = reviewService.getReviewLists(productId, sort);
+            (@PathVariable Long productId,
+             @RequestParam(required = false) SortType sortType,
+             @RequestParam(required = false) RatingSortType ratingSortType) {
+        List<ReviewListDTO> result = reviewService.getReviewLists(productId, sortType, ratingSortType);
         return ResponseEntity.ok(ApiResponse.ok(result, "조회되었습니다."));
     }
 

@@ -31,6 +31,7 @@ public class SellerService {
     private final ProductsRepository productsRepository;
     private final SellerLikesRepository sellerLikesRepository;
     private final SellerFollowRepository sellerFollowRepository;
+    private final NotificationService notificationService;
 
     public SellerResponse createSeller(SellerRequest request) {
         // user 정보 가져오기 (baarer token에서 추출)
@@ -186,6 +187,8 @@ public class SellerService {
             liked = true;
         }
 
+
+
         return new LikesResponseDTO(liked, sellers.getLikeCount());
     }
 
@@ -212,6 +215,8 @@ public class SellerService {
             sellers.setFollowCount(sellers.getFollowCount() + 1);
             sellersRepository.save(sellers);
             followed = true;
+            // 알림 전송
+            notificationService.sendSellerFollowNotification(sellers, user.getNickname());
         }
         return new SellerFollowDTO(followed);
     }

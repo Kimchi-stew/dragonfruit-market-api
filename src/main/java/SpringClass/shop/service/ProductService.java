@@ -10,6 +10,9 @@ import SpringClass.shop.entity.Categories;
 import SpringClass.shop.entity.Products.*;
 import SpringClass.shop.entity.Sellers.Sellers;
 import SpringClass.shop.entity.Users;
+import SpringClass.shop.enums.PriceSortType;
+import SpringClass.shop.enums.ProductCategoryType;
+import SpringClass.shop.enums.SortType;
 import SpringClass.shop.exceptions.CategoryNotFoundException;
 import SpringClass.shop.exceptions.ForbiddenException;
 import SpringClass.shop.exceptions.ProductNotFoundException;
@@ -18,11 +21,14 @@ import SpringClass.shop.repository.*;
 import SpringClass.shop.security.AuthenticatedUserUtils;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
 
 @Service
 @RequiredArgsConstructor
@@ -34,6 +40,7 @@ public class ProductService {
     private final ProductWishRepository productWishRepository;
     private final CategoriesRepository categoriesRepository;
     private final ProductCategoriesRepository productCategoriesRepository;
+    private final ReviewRepository reviewRepository;
 
     public ProductResponse createProduct(ProductRequest request) {
         // user 정보 가져오기 (bearer token에서 추출)
@@ -99,51 +106,65 @@ public class ProductService {
                         .collect(Collectors.toList()))
                 .createdAt(savedProduct.getCreatedAt())
                 .updatedAt(savedProduct.getUpdatedAt())
+                .rating(null) // 리뷰가 없으므로 평균 평점에 null
                 .build();
     }
 
-    public List<ProductListDTO> getProducts(String category) {
-        List<Products> products;
 
-        if ("asc".equalsIgnoreCase(category)) { // 가격 낮은순 + 최신순
-            products = productsRepository.findAllByDeletedAtIsNullOrderByPriceAscCreatedAtDesc();
-        } else if ("desc".equalsIgnoreCase(category)) { // 가격 높은순 + 최신순
-            products = productsRepository.findAllByDeletedAtIsNullOrderByPriceDescCreatedAtDesc();
+    public Page<ProductListDTO> getProducts(
+            PriceSortType priceSortType,
+            SortType sortType,
+            ProductCategoryType productCategoryType,
+            Pageable pageable) {
+        Page<Products> products;
 
-        } else if ("like".equalsIgnoreCase(category)) { // 좋아요 많은 순 + 최신순
-            products = productsRepository.findAllByDeletedAtIsNullOrderByLikeCountDescCreatedAtDesc();
-        }
-        else if ("old".equalsIgnoreCase(category)) { // 오래된 순
-            products = productsRepository.findAllByDeletedAtIsNullOrderByCreatedAtAsc();
-        }
-        else { // 최신순
-            products = productsRepository.findAllByDeletedAtIsNullOrderByCreatedAtDesc();
-        }
-
-        return products.stream().map(product -> {
-            String mainImage = null;
-            if (product.getImages() != null && !product.getImages().isEmpty()) {
-                mainImage = product.getImages().get(0).getImageUrl(); // 첫 번째 이미지
+        if (priceSortType != null && sortType == null) {
+            if (priceSortType == PriceSortType.ASC) {
+                products = productsRepository.findAllByDeletedAtIsNullOrderByPriceAscCreatedAtDesc(pageable);
+            } else if (priceSortType == PriceSortType.DESC) {
+                products = productsRepository.findAllByDeletedAtIsNullOrderByPriceDescCreatedAtDesc(pageable);
+            } else {
+                products = productsRepository.findAllByDeletedAtIsNullOrderByCreatedAtDesc(pageable);
             }
 
-            return ProductListDTO.builder()
-                    .id(product.getId())
-                    .seller(SellerSummaryDTO.builder()
-                            .id(product.getSeller().getId())
-                            .storeName(product.getSeller().getStoreName())
-                            .image(product.getSeller().getImage())
-                            .build())
-                    .name(product.getName())
-                    .price(product.getPrice())
-                    .likeCount(product.getLikeCount())
-                    .image(mainImage)
-                    .build();
-        }).collect(Collectors.toList());
+        } else if (priceSortType != null && sortType != null) {
+
+            if (priceSortType == PriceSortType.DESC) {
+                if (sortType == SortType.POPULAR) {
+                    products = productsRepository.findAllByDeletedAtIsNullOrderByPriceDescLikeCountDescCreatedAtDesc(pageable);
+                } else if (sortType == SortType.OLDEST) {
+                    products = productsRepository.findAllByDeletedAtIsNullOrderByPriceDescCreatedAtAsc(pageable);
+                } else {
+                    products = productsRepository.findAllByDeletedAtIsNullOrderByPriceDescCreatedAtDesc(pageable);
+                }
+            } else {
+                if (sortType == SortType.POPULAR) {
+                    products = productsRepository.findAllByDeletedAtIsNullOrderByPriceAscLikeCountDescCreatedAtDesc(pageable);
+                } else if (sortType == SortType.OLDEST) {
+                    products = productsRepository.findAllByDeletedAtIsNullOrderByPriceAscCreatedAtAsc(pageable);
+                } else {
+                    products = productsRepository.findAllByDeletedAtIsNullOrderByPriceAscCreatedAtDesc(pageable);
+                }
+            }
+        } else if (priceSortType == null && sortType != null) {
+            if (sortType == SortType.POPULAR) {
+                products = productsRepository.findAllByDeletedAtIsNullOrderByLikeCountDescCreatedAtDesc(pageable);
+            } else if (sortType == SortType.OLDEST) {
+                products = productsRepository.findAllByDeletedAtIsNullOrderByCreatedAtAsc(pageable);
+            } else {
+                products = productsRepository.findAllByDeletedAtIsNullOrderByCreatedAtDesc(pageable);
+            }
+        } else {
+            products = productsRepository.findAllByDeletedAtIsNullOrderByCreatedAtDesc(pageable);
+        }
+        return products.map(ProductListDTO::from);
     }
 
     public ProductResponse patchProduct(Long id, ProductRequest request) {
         // user 정보 가져오기 (bearer token에서 추출)
         Users user = authenticatedUserUtils.getCurrentUser();
+
+
 
         Products product = productsRepository.findByIdAndDeletedAtIsNull(id)
                 .orElseThrow(() -> new ProductNotFoundException("상품을 찾을 수 없습니다."));
@@ -182,6 +203,9 @@ public class ProductService {
                 .orElseThrow(() -> new CategoryNotFoundException("카테고리가 존재하지 않습니다."));
         categories.setName(request.getName());
         categoriesRepository.save(categories);
+
+        // 평균 평점 계산
+        Double avgRating = reviewRepository.findAverageRating(savedProduct.getId());
         return ProductResponse.builder()
                 .id(savedProduct.getId())
                 .seller(SellerSummaryDTO.builder()
@@ -201,6 +225,7 @@ public class ProductService {
                 .likeCount(savedProduct.getLikeCount())
                 .createdAt(savedProduct.getCreatedAt())
                 .updatedAt(savedProduct.getUpdatedAt())
+                .rating(avgRating)
                 .build();
     }
 
@@ -217,6 +242,8 @@ public class ProductService {
         ProductCategories productCategories = productCategoriesRepository.findByProduct(product)
                 .orElseThrow(() -> new CategoryNotFoundException("카테고리가 존재하지 않습니다."));
 
+        // 평균 평점 계산
+        Double avgRating = reviewRepository.findAverageRating(product.getId());
         return ProductResponse.builder()
                 .id(product.getId())
                 .name(product.getName())
@@ -228,6 +255,7 @@ public class ProductService {
                 .likeCount(product.getLikeCount())
                 .wished(wished)
                 .category(productCategories.getCategory().getName())
+                .rating(avgRating)
                 .build();
     }
 

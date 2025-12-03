@@ -1,8 +1,10 @@
 package SpringClass.shop.service;
 
+import SpringClass.shop.dto.NoticeListResponse;
 import SpringClass.shop.dto.ResponseNotification;
 import SpringClass.shop.entity.Notifications;
 import SpringClass.shop.entity.Reviews.Reviews;
+import SpringClass.shop.entity.Sellers.Sellers;
 import SpringClass.shop.entity.Users;
 import SpringClass.shop.enums.NotificationType;
 import SpringClass.shop.exceptions.NotificationSendException;
@@ -12,6 +14,8 @@ import SpringClass.shop.repository.NotificationRepository;
 import SpringClass.shop.security.AuthenticatedUserUtils;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 import java.io.IOException;
@@ -114,6 +118,21 @@ public class NotificationService {
                 content
         );
     }
+
+    // 내 상점에 팔로우 시 알림
+    public void sendSellerFollowNotification(Sellers sellers, String nickname) {
+        Users receiver = sellers.getUser(); // 판매자
+        String content = nickname + "님이 회원님의 상점을 팔로우 했습니다.";
+        send(
+                receiver,
+                NotificationType.STORE_FOLLOW,
+                sellers.getId(),
+                content
+        );
+    }
+
+
+
     private String createId(Long userId) {
         return userId + "_" + System.currentTimeMillis();
     }
@@ -124,6 +143,26 @@ public class NotificationService {
         } catch (Exception e) {
             return 0;
         }
+    }
+
+    public Page<NoticeListResponse> getNoticeList(Pageable pageable) {
+        Users user = authenticatedUserUtils.getCurrentUser();
+
+        Page<Notifications> notifications =
+                notificationRepository.findAllByUsersOrderByCreatedAtDesc(user, pageable);
+
+        // 알림 읽음 처리
+        notifications.forEach(no -> {
+            if (!no.isRead()) {
+                no.setRead(true);
+            }
+        });
+        return notifications.map(NoticeListResponse::from);
+    }
+
+    public int getUnreadCount() {
+        Users user = authenticatedUserUtils.getCurrentUser();
+        return notificationRepository.countByUsersAndIsReadFalse(user);
     }
 
 

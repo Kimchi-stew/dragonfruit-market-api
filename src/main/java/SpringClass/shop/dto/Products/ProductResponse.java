@@ -27,4 +27,5 @@ public class ProductResponse {
     private LocalDateTime updatedAt;
     private boolean wished;
     private String category;
+    private Double rating; // 평균 평점
 }

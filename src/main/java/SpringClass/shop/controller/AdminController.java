@@ -5,6 +5,7 @@ import SpringClass.shop.dto.Admin.CategoryResponse;
 import SpringClass.shop.global.ApiResponse;
 import SpringClass.shop.service.AdminService;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -17,6 +18,15 @@ public class AdminController {
 
     @PostMapping("/category")
     @Operation(summary = "상품 카테고리 종류 추가", description = "상품 카테고리 종류 추가 시 사용하는 API 입니다.")
+    @ApiResponses(value = {
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "200", description = "요청 성공"
+            ),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "403", description = "관리자만 카테고리를 추가할 수 있습니다."),
+            @io.swagger.v3.oas.annotations.responses.ApiResponse(
+                    responseCode = "409", description = "이미 존재하는 이름 입니다.")
+    })
     public ResponseEntity<ApiResponse<CategoryResponse>> createCategory
             (@RequestBody CategoryRequest request) {
         CategoryResponse result = adminService.createCategory(request);

@@ -1,8 +1,11 @@
 package SpringClass.shop.controller;
 
+import SpringClass.shop.dto.NoticeListResponse;
 import SpringClass.shop.service.NotificationService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -10,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
+
 
 @RestController
 @AllArgsConstructor
@@ -25,6 +29,20 @@ public class NotificationController {
     public ResponseEntity<SseEmitter> subscribe(
             @RequestHeader(value = "Last-Event-ID", required = false, defaultValue = "") String lastEventId) {
         return ResponseEntity.ok(notificationService.subscribe(lastEventId));
+    }
+
+    @GetMapping
+    @Operation(summary = "알림 목록 조회", description = "알림 목록 조회 시 사용하는 API 입니다.")
+    public ResponseEntity<Page<NoticeListResponse>> noticeList(Pageable pageable) {
+        Page<NoticeListResponse> result = notificationService.getNoticeList(pageable);
+        return ResponseEntity.ok(result);
+    }
+
+    @GetMapping("/unread")
+    @Operation(summary = "읽지 않은 알림 개수 조회", description = "읽지 않은 알림 개수 조회 시 사용하는 API 입니다.")
+    public ResponseEntity<Integer> getUnreadCount() {
+        int count = notificationService.getUnreadCount();
+        return ResponseEntity.ok(count);
     }
 
 }

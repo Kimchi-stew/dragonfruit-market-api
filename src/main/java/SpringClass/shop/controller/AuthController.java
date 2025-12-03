@@ -2,7 +2,6 @@ package SpringClass.shop.controller;
 
 import SpringClass.shop.dto.Auth.AutoLoginRequest;
 import SpringClass.shop.dto.Auth.LoginRequest;
-import SpringClass.shop.dto.Users.SignupRequest;
 import SpringClass.shop.dto.Auth.TokenResponse;
 import SpringClass.shop.global.ApiResponse;
 import SpringClass.shop.service.AuthService;
