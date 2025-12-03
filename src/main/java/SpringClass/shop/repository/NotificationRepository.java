@@ -10,11 +10,9 @@ import java.util.List;
 
 
 public interface NotificationRepository extends JpaRepository<Notifications, Long> {
-    // 특정 사용자 알림 전체 조회
-    List<Notifications> findAllByUsersOrderByCreatedAtDesc(Users users);
 
     // 읽지 않은 알림만 조회
-    List<Notifications> findAllByUsersAndIsReadFalseOrderByCreatedAtDesc(Users users);
+    Page<Notifications> findAllByUsersAndIsReadFalseOrderByCreatedAtDesc(Users users, Pageable pageable);
 
     // 읽지 않은 알림 개수 조회
     int countByUsersAndIsReadFalse(Users user);

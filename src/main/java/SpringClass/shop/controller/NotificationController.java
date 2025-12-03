@@ -45,4 +45,11 @@ public class NotificationController {
         return ResponseEntity.ok(count);
     }
 
+    @GetMapping("/unreadList")
+    @Operation(summary = "읽지 않은 알림 목록 조회", description = "읽지 않은 알림 목록 조회 시 사용하는 API 입니다.")
+    public ResponseEntity<Page<NoticeListResponse>> unreadNoticeList(Pageable pageable) {
+        Page<NoticeListResponse> result = notificationService.getUnreadNoticeList(pageable);
+        return ResponseEntity.ok(result);
+    }
+
 }

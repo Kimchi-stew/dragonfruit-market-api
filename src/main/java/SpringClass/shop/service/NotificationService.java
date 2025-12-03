@@ -160,6 +160,21 @@ public class NotificationService {
         return notifications.map(NoticeListResponse::from);
     }
 
+    public Page<NoticeListResponse> getUnreadNoticeList(Pageable pageable) {
+        Users user = authenticatedUserUtils.getCurrentUser();
+
+        Page<Notifications> notifications =
+                notificationRepository.findAllByUsersAndIsReadFalseOrderByCreatedAtDesc(user, pageable);
+        // 알림 읽음 처리
+        notifications.forEach(no -> {
+            if (!no.isRead()) {
+                no.setRead(true);
+            }
+        });
+        return notifications.map(NoticeListResponse::from);
+    }
+
+
     public int getUnreadCount() {
         Users user = authenticatedUserUtils.getCurrentUser();
         return notificationRepository.countByUsersAndIsReadFalse(user);
