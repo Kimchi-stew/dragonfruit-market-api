@@ -1,6 +1,5 @@
 package SpringClass.shop.service;
 
-import SpringClass.shop.dto.NoticeListResponse;
 import SpringClass.shop.dto.ResponseNotification;
 import SpringClass.shop.entity.Notifications;
 import SpringClass.shop.entity.Reviews.Reviews;
@@ -145,7 +144,7 @@ public class NotificationService {
         }
     }
 
-    public Page<NoticeListResponse> getNoticeList(Pageable pageable) {
+    public Page<ResponseNotification> getNoticeList(Pageable pageable) {
         Users user = authenticatedUserUtils.getCurrentUser();
 
         Page<Notifications> notifications =
@@ -157,10 +156,10 @@ public class NotificationService {
                 no.setRead(true);
             }
         });
-        return notifications.map(NoticeListResponse::from);
+        return notifications.map(ResponseNotification::from);
     }
 
-    public Page<NoticeListResponse> getUnreadNoticeList(Pageable pageable) {
+    public Page<ResponseNotification> getUnreadNoticeList(Pageable pageable) {
         Users user = authenticatedUserUtils.getCurrentUser();
 
         Page<Notifications> notifications =
@@ -171,7 +170,7 @@ public class NotificationService {
                 no.setRead(true);
             }
         });
-        return notifications.map(NoticeListResponse::from);
+        return notifications.map(ResponseNotification::from);
     }
 
 

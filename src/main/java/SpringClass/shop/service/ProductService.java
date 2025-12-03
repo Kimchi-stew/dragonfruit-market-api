@@ -114,7 +114,6 @@ public class ProductService {
     public Page<ProductListDTO> getProducts(
             PriceSortType priceSortType,
             SortType sortType,
-            ProductCategoryType productCategoryType,
             Pageable pageable) {
         Page<Products> products;
 

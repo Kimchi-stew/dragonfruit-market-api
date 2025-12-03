@@ -1,6 +1,6 @@
 package SpringClass.shop.controller;
 
-import SpringClass.shop.dto.NoticeListResponse;
+import SpringClass.shop.dto.ResponseNotification;
 import SpringClass.shop.service.NotificationService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.AllArgsConstructor;
@@ -33,8 +33,8 @@ public class NotificationController {
 
     @GetMapping
     @Operation(summary = "알림 목록 조회", description = "알림 목록 조회 시 사용하는 API 입니다.")
-    public ResponseEntity<Page<NoticeListResponse>> noticeList(Pageable pageable) {
-        Page<NoticeListResponse> result = notificationService.getNoticeList(pageable);
+    public ResponseEntity<Page<ResponseNotification>> noticeList(Pageable pageable) {
+        Page<ResponseNotification> result = notificationService.getNoticeList(pageable);
         return ResponseEntity.ok(result);
     }
 
@@ -47,8 +47,8 @@ public class NotificationController {
 
     @GetMapping("/unreadList")
     @Operation(summary = "읽지 않은 알림 목록 조회", description = "읽지 않은 알림 목록 조회 시 사용하는 API 입니다.")
-    public ResponseEntity<Page<NoticeListResponse>> unreadNoticeList(Pageable pageable) {
-        Page<NoticeListResponse> result = notificationService.getUnreadNoticeList(pageable);
+    public ResponseEntity<Page<ResponseNotification>> unreadNoticeList(Pageable pageable) {
+        Page<ResponseNotification> result = notificationService.getUnreadNoticeList(pageable);
         return ResponseEntity.ok(result);
     }
 

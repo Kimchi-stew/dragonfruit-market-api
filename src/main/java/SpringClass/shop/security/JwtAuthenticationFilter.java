@@ -19,7 +19,7 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
-    private final TokenProvider tokenProvider;          // validateToken, getUsername 제공
+    private final TokenProvider tokenProvider;
     private final UserDetailsService userDetailsService;
 
     @Override
@@ -29,18 +29,15 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NonNull FilterChain filterChain
     ) throws ServletException, IOException {
 
-
-        // 1) Authorization 헤더에서 Bearer 토큰 추출
         String token = resolveToken(request);
 
-        // 2) 토큰 존재 + 유효성 검증
         if (StringUtils.hasText(token) && tokenProvider.validateToken(token)) {
 
-            // email로 바꿔줌
+
             String email = tokenProvider.getEmail(token);
             UserDetails userDetails = userDetailsService.loadUserByUsername(email);
 
-            // 4) SecurityContext에 Authentication 주입 (이미 있으면 덮어쓰지 않음)
+
             if (SecurityContextHolder.getContext().getAuthentication() == null) {
                 UsernamePasswordAuthenticationToken authentication =
                         new UsernamePasswordAuthenticationToken(
@@ -52,14 +49,13 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             }
         }
 
-        // 5) 다음 필터로 진행
         filterChain.doFilter(request, response);
     }
 
     private String resolveToken(HttpServletRequest request) {
         String header = request.getHeader("Authorization");
         if (!StringUtils.hasText(header)) return null;
-        // "Bearer xxx" 형식만 허용
+
         if (header.startsWith("Bearer ")) {
             return header.substring(7).trim();
         }
