@@ -6,7 +6,9 @@ import SpringClass.shop.dto.Products.ProductDeleteDTO;
 import SpringClass.shop.dto.Products.ProductListDTO;
 import SpringClass.shop.dto.Products.ProductRequest;
 import SpringClass.shop.dto.Products.ProductResponse;
+import SpringClass.shop.enums.GenderRole;
 import SpringClass.shop.enums.PriceSortType;
+import SpringClass.shop.enums.ProductCategoryType;
 import SpringClass.shop.enums.SortType;
 import SpringClass.shop.global.ApiResponse;
 import SpringClass.shop.service.ProductService;
@@ -35,9 +37,11 @@ public class ProductController {
     @Operation(summary = "전체 상품 조회", description = "전체상품 조회 시 사용하는 API 입니다.")
     public ResponseEntity<ApiResponse<Page<ProductListDTO>>> getProducts
             (@RequestParam(required = false) PriceSortType priceSortType,
+             @RequestParam(required = false) ProductCategoryType productCategoryType,
+             @RequestParam(required = false) GenderRole genderRole,
              @RequestParam(required = false)SortType sortType,
              Pageable pageable) {
-        Page<ProductListDTO> result = productService.getProducts(priceSortType, sortType, pageable);
+        Page<ProductListDTO> result = productService.getProducts(priceSortType, productCategoryType, genderRole, sortType, pageable);
         return ResponseEntity.ok(ApiResponse.ok(result, "조회되었습니다."));
     }
 

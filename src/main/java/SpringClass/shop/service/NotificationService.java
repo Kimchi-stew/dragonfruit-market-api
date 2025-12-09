@@ -8,7 +8,7 @@ import SpringClass.shop.entity.Users;
 import SpringClass.shop.enums.NotificationType;
 import SpringClass.shop.exceptions.NotificationSendException;
 import SpringClass.shop.global.ApiResponse;
-import SpringClass.shop.repository.EmitterRepository;
+import SpringClass.shop.repository.Notification.EmitterRepository;
 import SpringClass.shop.repository.NotificationRepository;
 import SpringClass.shop.security.AuthenticatedUserUtils;
 import jakarta.transaction.Transactional;

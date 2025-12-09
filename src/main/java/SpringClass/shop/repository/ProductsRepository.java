@@ -12,7 +12,7 @@ import org.springframework.data.repository.query.Param;
 import java.util.List;
 import java.util.Optional;
 
-public interface ProductsRepository extends JpaRepository<Products, Long>{
+public interface ProductsRepository extends JpaRepository<Products, Long>, ProductsRepositoryCustom{
     // 해당 상품 조회
     Optional<Products> findByIdAndDeletedAtIsNull(Long id);
 

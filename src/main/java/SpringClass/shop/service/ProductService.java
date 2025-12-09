@@ -10,6 +10,7 @@ import SpringClass.shop.entity.Categories;
 import SpringClass.shop.entity.Products.*;
 import SpringClass.shop.entity.Sellers.Sellers;
 import SpringClass.shop.entity.Users;
+import SpringClass.shop.enums.GenderRole;
 import SpringClass.shop.enums.PriceSortType;
 import SpringClass.shop.enums.ProductCategoryType;
 import SpringClass.shop.enums.SortType;
@@ -64,9 +65,11 @@ public class ProductService {
                 .createdAt(LocalDateTime.now())
                 .build();
 
+        Products savedProduct = productsRepository.save(products);
+
         // 카테고리 저장
         ProductCategories productCategories = ProductCategories.builder()
-                .product(products)
+                .product(savedProduct)
                 .category(categories)
                 .build();
         productCategoriesRepository.save(productCategories);
@@ -75,17 +78,15 @@ public class ProductService {
         if (request.getImages() != null && !request.getImages().isEmpty()) {
             List<ProductImages> imageEntities = request.getImages().stream()
                     .map(url -> ProductImages.builder()
-                            .product(products) // 관계 연결
+                            .product(savedProduct) // 관계 연결
                             .imageUrl(url)
                             .createdAt(LocalDateTime.now())
                             .updatedAt(LocalDateTime.now())
                             .build())
                     .collect(Collectors.toList());
 
-            products.setImages(imageEntities);
+            savedProduct.setImages(imageEntities);
         }
-
-        Products savedProduct = productsRepository.save(products);
 
         return ProductResponse.builder()
                 .id(savedProduct.getId())
@@ -113,49 +114,19 @@ public class ProductService {
 
     public Page<ProductListDTO> getProducts(
             PriceSortType priceSortType,
+            ProductCategoryType productCategoryType,
+            GenderRole genderRole,
             SortType sortType,
             Pageable pageable) {
-        Page<Products> products;
 
-        if (priceSortType != null && sortType == null) {
-            if (priceSortType == PriceSortType.ASC) {
-                products = productsRepository.findAllByDeletedAtIsNullOrderByPriceAscCreatedAtDesc(pageable);
-            } else if (priceSortType == PriceSortType.DESC) {
-                products = productsRepository.findAllByDeletedAtIsNullOrderByPriceDescCreatedAtDesc(pageable);
-            } else {
-                products = productsRepository.findAllByDeletedAtIsNullOrderByCreatedAtDesc(pageable);
-            }
+        Page<Products> products = productsRepository.findProductsWithDynamicConditions(
+                priceSortType,
+                productCategoryType,
+                genderRole,
+                sortType,
+                pageable
+        );
 
-        } else if (priceSortType != null && sortType != null) {
-
-            if (priceSortType == PriceSortType.DESC) {
-                if (sortType == SortType.POPULAR) {
-                    products = productsRepository.findAllByDeletedAtIsNullOrderByPriceDescLikeCountDescCreatedAtDesc(pageable);
-                } else if (sortType == SortType.OLDEST) {
-                    products = productsRepository.findAllByDeletedAtIsNullOrderByPriceDescCreatedAtAsc(pageable);
-                } else {
-                    products = productsRepository.findAllByDeletedAtIsNullOrderByPriceDescCreatedAtDesc(pageable);
-                }
-            } else {
-                if (sortType == SortType.POPULAR) {
-                    products = productsRepository.findAllByDeletedAtIsNullOrderByPriceAscLikeCountDescCreatedAtDesc(pageable);
-                } else if (sortType == SortType.OLDEST) {
-                    products = productsRepository.findAllByDeletedAtIsNullOrderByPriceAscCreatedAtAsc(pageable);
-                } else {
-                    products = productsRepository.findAllByDeletedAtIsNullOrderByPriceAscCreatedAtDesc(pageable);
-                }
-            }
-        } else if (priceSortType == null && sortType != null) {
-            if (sortType == SortType.POPULAR) {
-                products = productsRepository.findAllByDeletedAtIsNullOrderByLikeCountDescCreatedAtDesc(pageable);
-            } else if (sortType == SortType.OLDEST) {
-                products = productsRepository.findAllByDeletedAtIsNullOrderByCreatedAtAsc(pageable);
-            } else {
-                products = productsRepository.findAllByDeletedAtIsNullOrderByCreatedAtDesc(pageable);
-            }
-        } else {
-            products = productsRepository.findAllByDeletedAtIsNullOrderByCreatedAtDesc(pageable);
-        }
         return products.map(ProductListDTO::from);
     }
 
