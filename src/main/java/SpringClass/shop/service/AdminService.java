@@ -7,7 +7,7 @@ import SpringClass.shop.entity.Users;
 import SpringClass.shop.enums.UserRole;
 import SpringClass.shop.exceptions.*;
 import SpringClass.shop.repository.CategoriesRepository;
-import SpringClass.shop.security.AuthenticatedUserUtils;
+import SpringClass.shop.security.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -16,11 +16,11 @@ import java.util.Optional;
 @Service
 @RequiredArgsConstructor
 public class AdminService {
-    private final AuthenticatedUserUtils authenticatedUserUtils;
+    private final SecurityUtils SecurityUtils;
     private final CategoriesRepository categoriesRepository;
 
     public CategoryResponse createCategory(CategoryRequest request) {
-        Users user = authenticatedUserUtils.getCurrentUser();
+        Users user = SecurityUtils.getCurrentUser();
         if (user.getUserRole() != UserRole.ADMIN) {
             throw new AdminPermissionRequiredException("관리자만 카테고리를 추가할 수 있습니다.");
         }
@@ -40,7 +40,7 @@ public class AdminService {
     }
 
     public CategoryResponse patchCategory(Long id, CategoryRequest request) {
-        Users user = authenticatedUserUtils.getCurrentUser();
+        Users user = SecurityUtils.getCurrentUser();
         if (user.getUserRole() != UserRole.ADMIN) {
             throw new AdminPermissionRequiredException("관리자만 카테고리를 수정할 수 있습니다.");
         }
@@ -61,7 +61,7 @@ public class AdminService {
     }
 
     public void deleteCategory(Long id) {
-        Users user = authenticatedUserUtils.getCurrentUser();
+        Users user = SecurityUtils.getCurrentUser();
         if (user.getUserRole() != UserRole.ADMIN) {
             throw new AdminPermissionRequiredException("관리자만 카테고리를 삭제할 수 있습니다.");
         }

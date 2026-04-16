@@ -12,7 +12,7 @@ import SpringClass.shop.exceptions.CartNotFoundException;
 import SpringClass.shop.exceptions.ProductNotFoundException;
 import SpringClass.shop.repository.CartItemsRepository;
 import SpringClass.shop.repository.ProductsRepository;
-import SpringClass.shop.security.AuthenticatedUserUtils;
+import SpringClass.shop.security.SecurityUtils;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -25,12 +25,12 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class CartService {
-    private final AuthenticatedUserUtils authenticatedUserUtils;
+    private final SecurityUtils SecurityUtils;
     private final ProductsRepository productsRepository;
     private final CartItemsRepository cartItemsRepository;
 
     public ProductSummaryDTO plusProduct(CartRequest request) {
-        Users user = authenticatedUserUtils.getCurrentUser();
+        Users user = SecurityUtils.getCurrentUser();
         Products products = productsRepository.findByIdAndDeletedAtIsNull(request.getProductId())
                 .orElseThrow(() -> new ProductNotFoundException("해당 상품을 찾을 수 없습니다."));
 
@@ -61,7 +61,7 @@ public class CartService {
     }
 
     public CartResponse getCart() {
-        Users user = authenticatedUserUtils.getCurrentUser();
+        Users user = SecurityUtils.getCurrentUser();
         List<CartItems> cartItems = cartItemsRepository.findByUser(user);
         if(cartItems.isEmpty()) {
             throw new CartNotFoundException("장바구니에 상품이 없습니다.");
@@ -91,7 +91,7 @@ public class CartService {
 
     @Transactional
     public void deleteProduct(CartRequest request) {
-        Users user = authenticatedUserUtils.getCurrentUser();
+        Users user = SecurityUtils.getCurrentUser();
 
         Products products = productsRepository.findByIdAndDeletedAtIsNull(request.getProductId())
                 .orElseThrow(() -> new ProductNotFoundException("해당 상품을 찾을 수 없습니다."));

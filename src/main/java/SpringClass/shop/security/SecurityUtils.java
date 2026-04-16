@@ -36,3 +36,4 @@ public class SecurityUtils {
         return getCurrentUser().getId();
     }
 }
+

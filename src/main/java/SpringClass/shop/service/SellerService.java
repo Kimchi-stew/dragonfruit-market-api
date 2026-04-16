@@ -14,7 +14,7 @@ import SpringClass.shop.repository.ProductsRepository;
 import SpringClass.shop.repository.SellerFollowRepository;
 import SpringClass.shop.repository.SellerLikesRepository;
 import SpringClass.shop.repository.SellersRepository;
-import SpringClass.shop.security.AuthenticatedUserUtils;
+import SpringClass.shop.security.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -26,7 +26,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class SellerService {
-    private final AuthenticatedUserUtils authenticatedUserUtils;
+    private final SecurityUtils SecurityUtils;
     private final SellersRepository sellersRepository;
     private final ProductsRepository productsRepository;
     private final SellerLikesRepository sellerLikesRepository;
@@ -35,7 +35,7 @@ public class SellerService {
 
     public SellerResponse createSeller(SellerRequest request) {
         // user 정보 가져오기 (baarer token에서 추출)
-        Users user = authenticatedUserUtils.getCurrentUser();
+        Users user = SecurityUtils.getCurrentUser();
 
         Sellers sellers = Sellers.builder()
                 .user(user)
@@ -88,7 +88,7 @@ public class SellerService {
 
     public SellerResponse patchSeller(Long id, SellerRequest request) {
         // user 정보 가져오기 (baarer token에서 추출)
-        Users user = authenticatedUserUtils.getCurrentUser();
+        Users user = SecurityUtils.getCurrentUser();
 
         Sellers sellers = sellersRepository.findByIdAndDeletedAtIsNull(id)
                 .orElseThrow(() -> new SellerNotFoundException("상점을 찾을 수 없습니다."));
@@ -118,7 +118,7 @@ public class SellerService {
     }
 
     public SellerResponse getSeller(Long id) {
-        Users user = authenticatedUserUtils.getCurrentUser();
+        Users user = SecurityUtils.getCurrentUser();
         Sellers sellers = sellersRepository.findByIdAndDeletedAtIsNull(id)
                 .orElseThrow(() -> new SellerNotFoundException("상점을 찾을 수 없습니다."));
 
@@ -137,7 +137,7 @@ public class SellerService {
     }
 
     public SellerDeleteDTO deleteSeller(Long id) {
-        Users user = authenticatedUserUtils.getCurrentUser();
+        Users user = SecurityUtils.getCurrentUser();
 
         Sellers sellers = sellersRepository.findByIdAndDeletedAtIsNull(id)
                 .orElseThrow(() -> new SellerNotFoundException("상점을 찾을 수 없습니다."));
@@ -162,7 +162,7 @@ public class SellerService {
     }
 
     public LikesResponseDTO likeSeller(Long id) {
-        Users user = authenticatedUserUtils.getCurrentUser();
+        Users user = SecurityUtils.getCurrentUser();
 
         Sellers sellers = sellersRepository.findByIdAndDeletedAtIsNull(id)
                 .orElseThrow(() -> new SellerNotFoundException("상점을 찾을 수 없습니다."));
@@ -193,7 +193,7 @@ public class SellerService {
     }
 
     public SellerFollowDTO followSeller(Long id) {
-        Users user = authenticatedUserUtils.getCurrentUser();
+        Users user = SecurityUtils.getCurrentUser();
 
         Sellers sellers = sellersRepository.findByIdAndDeletedAtIsNull(id)
                 .orElseThrow(() -> new SellerNotFoundException("상점을 찾을 수 없습니다."));

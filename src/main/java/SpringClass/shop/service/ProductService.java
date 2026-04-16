@@ -19,7 +19,7 @@ import SpringClass.shop.exceptions.ForbiddenException;
 import SpringClass.shop.exceptions.ProductNotFoundException;
 import SpringClass.shop.exceptions.SellerNotFoundException;
 import SpringClass.shop.repository.*;
-import SpringClass.shop.security.AuthenticatedUserUtils;
+import SpringClass.shop.security.SecurityUtils;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class ProductService {
-    private final AuthenticatedUserUtils authenticatedUserUtils;
+    private final SecurityUtils SecurityUtils;
     private final SellersRepository sellersRepository;
     private final ProductsRepository productsRepository;
     private final ProductLikeRepository productLikeRepository;
@@ -45,7 +45,7 @@ public class ProductService {
 
     public ProductResponse createProduct(ProductRequest request) {
         // user 정보 가져오기 (bearer token에서 추출)
-        Users user = authenticatedUserUtils.getCurrentUser();
+        Users user = SecurityUtils.getCurrentUser();
 
         // 판매자(상점) 등록을 안 하면 오류
         Sellers seller = sellersRepository.findByUser(user)
@@ -132,7 +132,7 @@ public class ProductService {
 
     public ProductResponse patchProduct(Long id, ProductRequest request) {
         // user 정보 가져오기 (bearer token에서 추출)
-        Users user = authenticatedUserUtils.getCurrentUser();
+        Users user = SecurityUtils.getCurrentUser();
 
 
 
@@ -201,7 +201,7 @@ public class ProductService {
 
     public ProductResponse getProduct(Long id){
         // user 정보 가져오기 (baarer token에서 추출)
-        Users user = authenticatedUserUtils.getCurrentUser();
+        Users user = SecurityUtils.getCurrentUser();
 
         // 상품 조회
         Products product = productsRepository.findByIdAndDeletedAtIsNull(id)
@@ -231,7 +231,7 @@ public class ProductService {
 
     @Transactional
     public ProductDeleteDTO deleteProduct(Long id) {
-        Users user = authenticatedUserUtils.getCurrentUser();
+        Users user = SecurityUtils.getCurrentUser();
 
         Products product = productsRepository.findByIdAndDeletedAtIsNull(id)
                 .orElseThrow(() -> new ProductNotFoundException("상품을 찾을 수 없습니다."));
@@ -259,7 +259,7 @@ public class ProductService {
     @Transactional
     public LikesResponseDTO likeProduct(Long id) {
         // user 정보 가져오기 (bearer token에서 추출)
-        Users user = authenticatedUserUtils.getCurrentUser();
+        Users user = SecurityUtils.getCurrentUser();
 
         Products product = productsRepository.findByIdAndDeletedAtIsNull(id)
                 .orElseThrow(() -> new ProductNotFoundException("상품을 찾을 수 없습니다."));
@@ -289,7 +289,7 @@ public class ProductService {
 
     public WishResponseDTO wishProduct(Long id) {
         // user 정보 가져오기 (baarer token에서 추출)
-        Users user = authenticatedUserUtils.getCurrentUser();
+        Users user = SecurityUtils.getCurrentUser();
 
         Products product = productsRepository.findByIdAndDeletedAtIsNull(id)
                 .orElseThrow(() -> new ProductNotFoundException("상품을 찾을 수 없습니다."));
