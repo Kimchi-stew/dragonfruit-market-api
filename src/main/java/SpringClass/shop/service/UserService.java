@@ -19,7 +19,7 @@ import SpringClass.shop.exceptions.PasswordMismatchException;
 import SpringClass.shop.exceptions.SellerNotFoundException;
 import SpringClass.shop.exceptions.UserAlreadyExistException;
 import SpringClass.shop.repository.*;
-import SpringClass.shop.security.AuthenticatedUserUtils;
+import SpringClass.shop.security.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -30,7 +30,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class UserService {
-    private final AuthenticatedUserUtils authenticatedUserUtils;
+    private final SecurityUtils SecurityUtils;
     private final ProductLikeRepository productLikeRepository;
     private final ProductsRepository productsRepository;
     private final ProductWishRepository productWishRepository;
@@ -59,7 +59,7 @@ public class UserService {
     }
 
     public UserProfileResponse getProfile() {
-        Users user = authenticatedUserUtils.getCurrentUser();
+        Users user = SecurityUtils.getCurrentUser();
         return UserProfileResponse.builder()
                 .id(user.getId())
                 .email(user.getEmail())
@@ -72,7 +72,7 @@ public class UserService {
     }
 
     public String patchPassword(UserPasswordDTO request) {
-        Users user = authenticatedUserUtils.getCurrentUser();
+        Users user = SecurityUtils.getCurrentUser();
         if (!passwordEncoder.matches(request.getPassword(), user.getPassword())) {
             throw new PasswordMismatchException("비밀번호가 일치하지 않습니다.");
         }
@@ -82,7 +82,7 @@ public class UserService {
     }
 
     public UserProfileResponse patchProfile(UserProfileRequest request) {
-        Users user = authenticatedUserUtils.getCurrentUser();
+        Users user = SecurityUtils.getCurrentUser();
         user.setEmail(request.getEmail());
         user.setNickname(request.getNickname());
         user.setGender(request.getGender());
@@ -101,7 +101,7 @@ public class UserService {
 
     public List<ProductListDTO> getLikeProducts(String sort) {
         // user 정보 가져오기 (baarer token에서 추출)
-        Users user = authenticatedUserUtils.getCurrentUser();
+        Users user = SecurityUtils.getCurrentUser();
         List<ProductLikes> likedProducts;
         if ("like".equalsIgnoreCase(sort)) {
             likedProducts = productLikeRepository.findByUserAndProduct_DeletedAtIsNullOrderByProduct_LikeCountDescCreatedAtDesc(user);
@@ -137,7 +137,7 @@ public class UserService {
     }
 
     public List<ProductListDTO> getWishProducts() {
-        Users user = authenticatedUserUtils.getCurrentUser();
+        Users user = SecurityUtils.getCurrentUser();
         List<ProductWish> wishProducts = productWishRepository.findByUserAndProduct_DeletedAtIsNull(user);
 
         return wishProducts.stream()
@@ -166,7 +166,7 @@ public class UserService {
     }
 
     public List<SellerListDTO> getLikeSellers() {
-        Users user = authenticatedUserUtils.getCurrentUser();
+        Users user = SecurityUtils.getCurrentUser();
         List<SellerLikes> sellerLikes = sellerLikesRepository.findByUserAndSellers_DeletedAtIsNull(user);
 
         return sellerLikes.stream()
@@ -181,7 +181,7 @@ public class UserService {
     }
 
     public List<SellerListDTO> getFollowSellers() {
-        Users user = authenticatedUserUtils.getCurrentUser();
+        Users user = SecurityUtils.getCurrentUser();
         List<SellerFollow> sellerFollows = sellerFollowRepository.findByUserAndSellers_DeletedAtIsNull(user);
         return sellerFollows.stream()
                 .map(sellerFollow -> SellerListDTO.builder()
@@ -195,7 +195,7 @@ public class UserService {
     }
 
     public List<ReviewListDTO> getMyReviews() {
-        Users user = authenticatedUserUtils.getCurrentUser();
+        Users user = SecurityUtils.getCurrentUser();
         // 최신순
         List<Reviews> reviews = reviewRepository.findByUserAndDeletedAtIsNullOrderByCreatedAtDesc(user);
         return reviews.stream()
@@ -212,7 +212,7 @@ public class UserService {
     }
 
     public List<ProductListDTO> getMyProducts() {
-        Users user = authenticatedUserUtils.getCurrentUser();
+        Users user = SecurityUtils.getCurrentUser();
         Sellers seller = sellersRepository.findByUser(user)
                 .orElseThrow(() -> new SellerNotFoundException("해당 상점을 찾을 수 없습니다."));
         // 최신순
@@ -231,7 +231,7 @@ public class UserService {
     }
 
     public SellerResponse getMySeller() {
-        Users user = authenticatedUserUtils.getCurrentUser();
+        Users user = SecurityUtils.getCurrentUser();
         Sellers seller = sellersRepository.findByUser(user)
                 .orElseThrow(() -> new SellerNotFoundException("상점이 존재하지 않습니다."));
         boolean followed = sellerFollowRepository.existsByUserAndSellers(user, seller);

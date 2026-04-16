@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @AllArgsConstructor
-@RequestMapping("/api/admin")
+@RequestMapping("/admin")
 public class AdminController {
     private final AdminService adminService;
 

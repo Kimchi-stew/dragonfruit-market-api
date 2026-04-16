@@ -10,7 +10,7 @@ import SpringClass.shop.exceptions.NotificationSendException;
 import SpringClass.shop.global.ApiResponse;
 import SpringClass.shop.repository.Notification.EmitterRepository;
 import SpringClass.shop.repository.NotificationRepository;
-import SpringClass.shop.security.AuthenticatedUserUtils;
+import SpringClass.shop.security.SecurityUtils;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -26,14 +26,14 @@ import java.util.Map;
 public class NotificationService {
     private final EmitterRepository emitterRepository;
     private final NotificationRepository notificationRepository;
-    private final AuthenticatedUserUtils authenticatedUserUtils;
+    private final SecurityUtils SecurityUtils;
 
 
     // 연결 지속시간 1시간
     private static final Long DEFAULT_TIMEOUT = 60L * 1000 * 60;
 
     public SseEmitter subscribe(String lastEventId) {
-        Long userId = authenticatedUserUtils.getCurrentUserId();
+        Long userId = SecurityUtils.getCurrentUserId();
 
 
         String emitterId = createId(userId);
@@ -145,7 +145,7 @@ public class NotificationService {
     }
 
     public Page<ResponseNotification> getNoticeList(Pageable pageable) {
-        Users user = authenticatedUserUtils.getCurrentUser();
+        Users user = SecurityUtils.getCurrentUser();
 
         Page<Notifications> notifications =
                 notificationRepository.findAllByUsersOrderByCreatedAtDesc(user, pageable);
@@ -160,7 +160,7 @@ public class NotificationService {
     }
 
     public Page<ResponseNotification> getUnreadNoticeList(Pageable pageable) {
-        Users user = authenticatedUserUtils.getCurrentUser();
+        Users user = SecurityUtils.getCurrentUser();
 
         Page<Notifications> notifications =
                 notificationRepository.findAllByUsersAndIsReadFalseOrderByCreatedAtDesc(user, pageable);
@@ -175,7 +175,7 @@ public class NotificationService {
 
 
     public int getUnreadCount() {
-        Users user = authenticatedUserUtils.getCurrentUser();
+        Users user = SecurityUtils.getCurrentUser();
         return notificationRepository.countByUsersAndIsReadFalse(user);
     }
 

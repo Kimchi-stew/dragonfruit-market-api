@@ -10,7 +10,7 @@ import SpringClass.shop.exceptions.UserNotFoundException;
 import SpringClass.shop.global.TokenProvider;
 import SpringClass.shop.repository.RefreshTokenRepository;
 import SpringClass.shop.repository.UsersRepository;
-import SpringClass.shop.security.AuthenticatedUserUtils;
+import SpringClass.shop.security.SecurityUtils;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -28,7 +28,7 @@ public class AuthService {
     private final AuthenticationManager authenticationManager;
     private final TokenProvider tokenProvider;
     private final RefreshTokenRepository refreshTokenRepository;
-    private final AuthenticatedUserUtils authenticatedUserUtils;
+    private final SecurityUtils SecurityUtils;
 
 
 
@@ -79,7 +79,7 @@ public class AuthService {
 
     @Transactional
     public void logOut() {
-        Users user = authenticatedUserUtils.getCurrentUser();
+        Users user = SecurityUtils.getCurrentUser();
         // 토큰 삭제
         refreshTokenRepository.deleteByEmail(user.getEmail());
     }

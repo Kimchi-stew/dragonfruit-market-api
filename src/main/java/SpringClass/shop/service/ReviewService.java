@@ -20,7 +20,7 @@ import SpringClass.shop.repository.ProductsRepository;
 import SpringClass.shop.repository.ReviewImagesRepository;
 import SpringClass.shop.repository.ReviewLikesRepository;
 import SpringClass.shop.repository.ReviewRepository;
-import SpringClass.shop.security.AuthenticatedUserUtils;
+import SpringClass.shop.security.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
@@ -32,7 +32,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class ReviewService {
-    private final AuthenticatedUserUtils authenticatedUserUtils;
+    private final SecurityUtils SecurityUtils;
     private final ReviewRepository reviewRepository;
     private final ProductsRepository productsRepository;
     private final ReviewImagesRepository reviewImagesRepository;
@@ -40,7 +40,7 @@ public class ReviewService {
     private final NotificationService notificationService;
 
     public ReviewResponseDTO createReview(Long productId, ReviewRequest request) {
-        Users user = authenticatedUserUtils.getCurrentUser();
+        Users user = SecurityUtils.getCurrentUser();
         Products product = productsRepository.findByIdAndDeletedAtIsNull(productId)
                 .orElseThrow(() -> new RuntimeException("상품을 찾을 수 없습니다."));
         Reviews reviews = Reviews.builder()
@@ -162,7 +162,7 @@ public class ReviewService {
     }
 
     public ReviewResponseDTO patchReview(Long reviewId, ReviewRequest request) {
-        Users user = authenticatedUserUtils.getCurrentUser();
+        Users user = SecurityUtils.getCurrentUser();
         Reviews reviews = reviewRepository.findByIdAndDeletedAtIsNull(reviewId)
                 .orElseThrow(() -> new ReviewNotFoundException("해당 리뷰를 찾을 수 없습니다."));
         // 소유자 확인
@@ -210,7 +210,7 @@ public class ReviewService {
     }
 
     public ReviewDeleteDTO deleteReview(Long reviewId) {
-        Users user = authenticatedUserUtils.getCurrentUser();
+        Users user = SecurityUtils.getCurrentUser();
         Reviews reviews = reviewRepository.findByIdAndDeletedAtIsNull(reviewId)
                 .orElseThrow(() -> new ReviewNotFoundException("해당 리뷰를 찾을 수 없습니다."));
         // 소유자 확인
@@ -233,7 +233,7 @@ public class ReviewService {
     }
 
     public LikesResponseDTO likeReview(Long reviewId) {
-        Users users = authenticatedUserUtils.getCurrentUser();
+        Users users = SecurityUtils.getCurrentUser();
 
         Reviews reviews = reviewRepository.findByIdAndDeletedAtIsNull(reviewId)
                 .orElseThrow(() -> new ReviewNotFoundException("해당 리뷰를 찾을 수 없습니다."));

@@ -1,0 +1,7 @@
+FROM eclipse-temurin:21-jdk-jammy
+
+COPY build/libs/*.jar app.jar
+
+EXPOSE 8282
+
+ENTRYPOINT ["java", "-jar", "app.jar", "--spring.profiles.active=prod"]
