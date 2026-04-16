@@ -42,7 +42,7 @@ public class AdminController {
     }
 
     @DeleteMapping("/category/{id}")
-    @Operation(summary = "상품 카테고리 삭제", description = "상품 카테고 삭제 시 사용하는 API 입니다.")
+    @Operation(summary = "상품 카테고리 삭제", description = "상품 카테고리 삭제 시 사용하는 API 입니다.")
     public ResponseEntity<ApiResponse<Void>> deleteCategory
             (@PathVariable Long id) {
         adminService.deleteCategory(id);
