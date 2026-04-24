@@ -1,10 +1,10 @@
 package SpringClass.shop.controller;
 
-import SpringClass.shop.dto.LikesResponseDTO;
-import SpringClass.shop.dto.Reviews.ReviewDeleteDTO;
-import SpringClass.shop.dto.Reviews.ReviewListDTO;
-import SpringClass.shop.dto.Reviews.ReviewRequest;
-import SpringClass.shop.dto.Reviews.ReviewResponseDTO;
+import SpringClass.shop.dto.Reviews.request.ReviewRequest;
+import SpringClass.shop.dto.Reviews.response.ReviewDeleteDTO;
+import SpringClass.shop.dto.Reviews.response.ReviewListDTO;
+import SpringClass.shop.dto.Reviews.response.ReviewResponseDTO;
+import SpringClass.shop.dto.common.response.LikesResponseDTO;
 import SpringClass.shop.enums.RatingSortType;
 import SpringClass.shop.enums.SortType;
 import SpringClass.shop.global.ApiResponse;

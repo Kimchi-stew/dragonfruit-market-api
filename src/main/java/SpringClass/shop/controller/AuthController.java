@@ -1,8 +1,10 @@
 package SpringClass.shop.controller;
 
-import SpringClass.shop.dto.Auth.AutoLoginRequest;
-import SpringClass.shop.dto.Auth.LoginRequest;
-import SpringClass.shop.dto.Auth.TokenResponse;
+import SpringClass.shop.dto.Auth.request.AutoLoginRequest;
+import SpringClass.shop.dto.Auth.request.LoginRequest;
+import SpringClass.shop.dto.Auth.request.SendEmailRequest;
+import SpringClass.shop.dto.Auth.request.VerifyEmailRequest;
+import SpringClass.shop.dto.Auth.response.TokenResponse;
 import SpringClass.shop.global.ApiResponse;
 import SpringClass.shop.service.AuthService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -40,6 +42,20 @@ public class AuthController {
     public ResponseEntity<ApiResponse<Void>> logOut() {
         authService.logOut();
         return ResponseEntity.ok(ApiResponse.ok("로그아웃 되었습니다."));
+    }
+
+    @PostMapping("/send-email")
+    @Operation(summary = "이메일 인증 코드 발송", description = "이메일에 인증 코드 발송 시 사용하는 API 입니다.")
+    public ResponseEntity<ApiResponse<Void>> sendEmail(@RequestBody SendEmailRequest request) {
+        authService.sendEmail(request);
+        return ResponseEntity.ok(ApiResponse.ok("인증 코드가 발송되었습니다."));
+    }
+
+    @PostMapping("/verify-email")
+    @Operation(summary = "이메일 인증 코드 확인", description = "이메일 인증 코드 확인 시 사용하는 API 입니다.")
+    public ResponseEntity<ApiResponse<Void>> verifyEmail(@RequestBody VerifyEmailRequest request) {
+        authService.verifyEmail(request);
+        return ResponseEntity.ok(ApiResponse.ok("인증되었습니다."));
     }
 
 }

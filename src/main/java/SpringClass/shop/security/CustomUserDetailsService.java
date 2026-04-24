@@ -1,7 +1,7 @@
 package SpringClass.shop.security;
 
-import SpringClass.shop.entity.Users;
-import SpringClass.shop.repository.UsersRepository;
+import SpringClass.shop.entity.Users.Users;
+import SpringClass.shop.repository.Users.UsersRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

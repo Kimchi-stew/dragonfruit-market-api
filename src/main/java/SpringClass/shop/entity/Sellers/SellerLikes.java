@@ -1,6 +1,6 @@
 package SpringClass.shop.entity.Sellers;
 
-import SpringClass.shop.entity.Users;
+import SpringClass.shop.entity.Users.Users;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.annotation.CreatedDate;

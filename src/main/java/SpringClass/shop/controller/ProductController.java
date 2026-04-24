@@ -1,11 +1,12 @@
 package SpringClass.shop.controller;
 
-import SpringClass.shop.dto.*;
-import SpringClass.shop.dto.Admin.CategoryResponse;
-import SpringClass.shop.dto.Products.ProductDeleteDTO;
-import SpringClass.shop.dto.Products.ProductListDTO;
-import SpringClass.shop.dto.Products.ProductRequest;
-import SpringClass.shop.dto.Products.ProductResponse;
+import SpringClass.shop.dto.Admin.response.CategoryResponse;
+import SpringClass.shop.dto.Products.request.ProductRequest;
+import SpringClass.shop.dto.Products.response.ProductDeleteDTO;
+import SpringClass.shop.dto.Products.response.ProductListDTO;
+import SpringClass.shop.dto.Products.response.ProductResponse;
+import SpringClass.shop.dto.Products.response.WishResponseDTO;
+import SpringClass.shop.dto.common.response.LikesResponseDTO;
 import SpringClass.shop.enums.GenderRole;
 import SpringClass.shop.enums.PriceSortType;
 import SpringClass.shop.enums.ProductCategoryType;
