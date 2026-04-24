@@ -1,6 +1,6 @@
 package SpringClass.shop.entity.Products;
 
-import SpringClass.shop.entity.Categories;
+import SpringClass.shop.entity.Categories.Categories;
 import jakarta.persistence.*;
 import lombok.*;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;

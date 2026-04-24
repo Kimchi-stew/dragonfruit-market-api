@@ -1,15 +1,16 @@
 package SpringClass.shop.service;
 
-import SpringClass.shop.dto.Auth.AutoLoginRequest;
-import SpringClass.shop.dto.Auth.LoginRequest;
-import SpringClass.shop.dto.Auth.TokenResponse;
-import SpringClass.shop.entity.RefreshToken;
-import SpringClass.shop.entity.Users;
+import SpringClass.shop.dto.Auth.request.AutoLoginRequest;
+import SpringClass.shop.dto.Auth.request.LoginRequest;
+import SpringClass.shop.dto.Auth.request.SendEmailRequest;
+import SpringClass.shop.dto.Auth.response.TokenResponse;
+import SpringClass.shop.entity.Users.RefreshToken;
+import SpringClass.shop.entity.Users.Users;
 import SpringClass.shop.exceptions.RefreshTokenNotFoundException;
 import SpringClass.shop.exceptions.UserNotFoundException;
 import SpringClass.shop.global.TokenProvider;
-import SpringClass.shop.repository.RefreshTokenRepository;
-import SpringClass.shop.repository.UsersRepository;
+import SpringClass.shop.repository.Users.RefreshTokenRepository;
+import SpringClass.shop.repository.Users.UsersRepository;
 import SpringClass.shop.security.SecurityUtils;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -17,6 +18,11 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import software.amazon.awssdk.regions.Region;
+import software.amazon.awssdk.services.ses.SesClient;
+import software.amazon.awssdk.services.ses.model.Body;
+import software.amazon.awssdk.services.ses.model.Destination;
+import software.amazon.awssdk.services.ses.model.Message;
 
 import java.time.LocalDateTime;
 
@@ -82,5 +88,23 @@ public class AuthService {
         Users user = SecurityUtils.getCurrentUser();
         // 토큰 삭제
         refreshTokenRepository.deleteByEmail(user.getEmail());
+    }
+
+    // 이메일 인증 코드 발송
+    public void sendEmail(SendEmailRequest request) {
+        SesClient sesClient = SesClient.builder()
+                .region(Region.AP_NORTHEAST_2)
+                .build();
+
+        SendEmailRequest request = SendEmailRequest.builder()
+                .source("example@example.com")
+                .destination(Destination.builder().toAddresses("recipient@example.com").build())
+                .message(Message.builder()
+                        .subject(Content.builder().data("Test Subject").build())
+                        .body(Body.builder().text(Content.builder().data("Test Body").build()).build())
+                        .build())
+                .build();
+
+        sesClient.sendEmail(request);
     }
 }

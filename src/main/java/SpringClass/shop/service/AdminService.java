@@ -1,12 +1,12 @@
 package SpringClass.shop.service;
 
-import SpringClass.shop.dto.Admin.CategoryRequest;
-import SpringClass.shop.dto.Admin.CategoryResponse;
-import SpringClass.shop.entity.Categories;
-import SpringClass.shop.entity.Users;
+import SpringClass.shop.dto.Admin.request.CategoryRequest;
+import SpringClass.shop.dto.Admin.response.CategoryResponse;
+import SpringClass.shop.entity.Categories.Categories;
+import SpringClass.shop.entity.Users.Users;
 import SpringClass.shop.enums.UserRole;
 import SpringClass.shop.exceptions.*;
-import SpringClass.shop.repository.CategoriesRepository;
+import SpringClass.shop.repository.Categories.CategoriesRepository;
 import SpringClass.shop.security.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
