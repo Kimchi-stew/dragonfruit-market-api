@@ -1,8 +1,8 @@
 package SpringClass.shop.controller;
 
-import SpringClass.shop.dto.Cart.CartRequest;
-import SpringClass.shop.dto.Cart.CartResponse;
-import SpringClass.shop.dto.Products.ProductSummaryDTO;
+import SpringClass.shop.dto.Cart.request.CartRequest;
+import SpringClass.shop.dto.Cart.response.CartResponse;
+import SpringClass.shop.dto.Products.response.ProductSummaryDTO;
 import SpringClass.shop.global.ApiResponse;
 import SpringClass.shop.service.CartService;
 import io.swagger.v3.oas.annotations.Operation;

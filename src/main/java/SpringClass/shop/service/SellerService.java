@@ -1,19 +1,23 @@
 package SpringClass.shop.service;
 
 
-import SpringClass.shop.dto.*;
-import SpringClass.shop.dto.Sellers.*;
+import SpringClass.shop.dto.Sellers.request.SellerRequest;
+import SpringClass.shop.dto.Sellers.response.SellerDeleteDTO;
+import SpringClass.shop.dto.Sellers.response.SellerFollowDTO;
+import SpringClass.shop.dto.Sellers.response.SellerListDTO;
+import SpringClass.shop.dto.Sellers.response.SellerResponse;
+import SpringClass.shop.dto.common.response.LikesResponseDTO;
 import SpringClass.shop.entity.Products.Products;
 import SpringClass.shop.entity.Sellers.SellerFollow;
 import SpringClass.shop.entity.Sellers.SellerLikes;
 import SpringClass.shop.entity.Sellers.Sellers;
-import SpringClass.shop.entity.Users;
+import SpringClass.shop.entity.Users.Users;
 import SpringClass.shop.exceptions.ForbiddenException;
 import SpringClass.shop.exceptions.SellerNotFoundException;
-import SpringClass.shop.repository.ProductsRepository;
-import SpringClass.shop.repository.SellerFollowRepository;
-import SpringClass.shop.repository.SellerLikesRepository;
-import SpringClass.shop.repository.SellersRepository;
+import SpringClass.shop.repository.Products.ProductsRepository;
+import SpringClass.shop.repository.Sellers.SellerFollowRepository;
+import SpringClass.shop.repository.Sellers.SellerLikesRepository;
+import SpringClass.shop.repository.Sellers.SellersRepository;
 import SpringClass.shop.security.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
