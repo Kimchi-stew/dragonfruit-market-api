@@ -1,17 +1,17 @@
 package SpringClass.shop.service;
 
-import SpringClass.shop.dto.Cart.CartItemResponse;
-import SpringClass.shop.dto.Cart.CartRequest;
-import SpringClass.shop.dto.Cart.CartResponse;
-import SpringClass.shop.dto.Products.ProductSummaryDTO;
-import SpringClass.shop.dto.Sellers.SellerSummaryDTO;
-import SpringClass.shop.entity.CartItems;
+import SpringClass.shop.dto.Cart.request.CartRequest;
+import SpringClass.shop.dto.Cart.response.CartItemResponse;
+import SpringClass.shop.dto.Cart.response.CartResponse;
+import SpringClass.shop.dto.Products.response.ProductSummaryDTO;
+import SpringClass.shop.dto.Sellers.response.SellerSummaryDTO;
+import SpringClass.shop.entity.Cart.CartItems;
 import SpringClass.shop.entity.Products.Products;
-import SpringClass.shop.entity.Users;
+import SpringClass.shop.entity.Users.Users;
 import SpringClass.shop.exceptions.CartNotFoundException;
 import SpringClass.shop.exceptions.ProductNotFoundException;
-import SpringClass.shop.repository.CartItemsRepository;
-import SpringClass.shop.repository.ProductsRepository;
+import SpringClass.shop.repository.Cart.CartItemsRepository;
+import SpringClass.shop.repository.Products.ProductsRepository;
 import SpringClass.shop.security.SecurityUtils;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;

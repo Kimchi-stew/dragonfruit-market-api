@@ -1,15 +1,15 @@
 package SpringClass.shop.service;
 
-import SpringClass.shop.dto.ResponseNotification;
-import SpringClass.shop.entity.Notifications;
+import SpringClass.shop.dto.Notifications.response.ResponseNotification;
+import SpringClass.shop.entity.Notifications.Notifications;
 import SpringClass.shop.entity.Reviews.Reviews;
 import SpringClass.shop.entity.Sellers.Sellers;
-import SpringClass.shop.entity.Users;
+import SpringClass.shop.entity.Users.Users;
 import SpringClass.shop.enums.NotificationType;
 import SpringClass.shop.exceptions.NotificationSendException;
 import SpringClass.shop.global.ApiResponse;
-import SpringClass.shop.repository.Notification.EmitterRepository;
-import SpringClass.shop.repository.NotificationRepository;
+import SpringClass.shop.repository.Notifications.EmitterRepository;
+import SpringClass.shop.repository.Notifications.NotificationRepository;
 import SpringClass.shop.security.SecurityUtils;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;

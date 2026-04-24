@@ -1,7 +1,7 @@
 package SpringClass.shop.controller;
 
-import SpringClass.shop.dto.Admin.CategoryRequest;
-import SpringClass.shop.dto.Admin.CategoryResponse;
+import SpringClass.shop.dto.Admin.request.CategoryRequest;
+import SpringClass.shop.dto.Admin.response.CategoryResponse;
 import SpringClass.shop.global.ApiResponse;
 import SpringClass.shop.service.AdminService;
 import io.swagger.v3.oas.annotations.Operation;
