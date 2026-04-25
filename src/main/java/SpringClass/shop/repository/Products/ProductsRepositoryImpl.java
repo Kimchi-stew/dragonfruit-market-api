@@ -4,7 +4,7 @@ import SpringClass.shop.entity.Products.Products;
 import SpringClass.shop.entity.Products.QProductCategories;
 import SpringClass.shop.entity.Products.QProductLikes;
 import SpringClass.shop.entity.Products.QProducts;
-import SpringClass.shop.entity.QUsers;
+import SpringClass.shop.entity.Users.QUsers;
 import SpringClass.shop.enums.GenderRole;
 import SpringClass.shop.enums.PriceSortType;
 import SpringClass.shop.enums.ProductCategoryType;
