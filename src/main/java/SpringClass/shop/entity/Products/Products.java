@@ -1,6 +1,4 @@
 package SpringClass.shop.entity.Products;
-
-import SpringClass.shop.entity.*;
 import SpringClass.shop.entity.Reviews.Reviews;
 import SpringClass.shop.entity.Sellers.Sellers;
 import jakarta.persistence.*;
