@@ -115,6 +115,27 @@ public class GlobalApiResponseHandler {
                 .body(ApiResponse.fail(e.getMessage()));
     }
 
+    // 존재하지 않는 쿠폰 처리
+    @ExceptionHandler(CouponNotFoundException.class)
+    public ResponseEntity<ApiResponse<Void>> handleCouponNotFoundException(CouponNotFoundException e) {
+        return ResponseEntity.status(404)
+                .body(ApiResponse.fail(e.getMessage()));
+    }
+
+    // 이미 등록된 쿠폰 처리
+    @ExceptionHandler(CouponAlreadyRegisteredException.class)
+    public ResponseEntity<ApiResponse<Void>> handleCouponAlreadyRegisteredException(CouponAlreadyRegisteredException e) {
+        return ResponseEntity.status(409)
+                .body(ApiResponse.fail(e.getMessage()));
+    }
+
+    // 만료된 쿠폰 처리
+    @ExceptionHandler(CouponExpiredException.class)
+    public ResponseEntity<ApiResponse<Void>> handleCouponExpiredException(CouponExpiredException e) {
+        return ResponseEntity.status(400)
+                .body(ApiResponse.fail(e.getMessage()));
+    }
+
 
 
 
