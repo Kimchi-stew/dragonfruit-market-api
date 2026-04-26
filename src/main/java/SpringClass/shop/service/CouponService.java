@@ -30,6 +30,7 @@ public class CouponService {
     private final CouponsRepository couponsRepository;
     private final UserCouponsRepository userCouponsRepository;
 
+    @jakarta.transaction.Transactional
     public CouponResponse createCoupon(CouponCreateRequest request) {
         Users user = securityUtils.getCurrentUser();
         if (user.getUserRole() != UserRole.ADMIN) {
@@ -52,6 +53,7 @@ public class CouponService {
         return CouponResponse.from(coupon);
     }
 
+    @jakarta.transaction.Transactional
     public UserCouponResponse registerCoupon(CouponRegisterRequest request) {
         Users user = securityUtils.getCurrentUser();
 
