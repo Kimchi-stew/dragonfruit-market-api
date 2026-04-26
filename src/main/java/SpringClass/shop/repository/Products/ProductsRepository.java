@@ -47,6 +47,9 @@ public interface ProductsRepository extends JpaRepository<Products, Long>, Produ
 
     // 한 상점의 모든 상품 + 최신순
     List<Products> findAllBySellerAndDeletedAtIsNullOrderByCreatedAtDesc(Sellers seller);
+
+    // 한 상점의 상품 목록 (페이지네이션)
+    Page<Products> findBySellerAndDeletedAtIsNullOrderByCreatedAtDesc(Sellers seller, Pageable pageable);
     // 상품 이름으로 검색 + 좋아요순 + 최신순
     List<Products> findByDeletedAtIsNullAndNameContainingIgnoreCaseOrderByLikeCountDescCreatedAtDesc(String keyword);
 

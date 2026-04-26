@@ -5,6 +5,7 @@ import SpringClass.shop.dto.Sellers.request.SellerRequest;
 import SpringClass.shop.dto.Sellers.response.SellerDeleteDTO;
 import SpringClass.shop.dto.Sellers.response.SellerFollowDTO;
 import SpringClass.shop.dto.Sellers.response.SellerListDTO;
+import SpringClass.shop.dto.Sellers.response.SellerProductResponse;
 import SpringClass.shop.dto.Sellers.response.SellerResponse;
 import SpringClass.shop.dto.common.response.LikesResponseDTO;
 import SpringClass.shop.entity.Products.Products;
@@ -22,6 +23,8 @@ import SpringClass.shop.security.SecurityUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -194,6 +197,14 @@ public class SellerService {
 
 
         return new LikesResponseDTO(liked, sellers.getLikeCount());
+    }
+
+    public Page<SellerProductResponse> getSellerProducts(Long sellerId, Pageable pageable) {
+        Sellers seller = sellersRepository.findByIdAndDeletedAtIsNull(sellerId)
+                .orElseThrow(() -> new SellerNotFoundException("상점을 찾을 수 없습니다."));
+
+        return productsRepository.findBySellerAndDeletedAtIsNullOrderByCreatedAtDesc(seller, pageable)
+                .map(SellerProductResponse::from);
     }
 
     public SellerFollowDTO followSeller(Long id) {
