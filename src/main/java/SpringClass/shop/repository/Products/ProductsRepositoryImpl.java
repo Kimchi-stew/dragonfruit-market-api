@@ -1,138 +1,59 @@
-package SpringClass.shop.repository.Products;
+name: Deploy to EC2
 
-import SpringClass.shop.entity.Products.Products;
-import SpringClass.shop.entity.Products.QProductCategories;
-import SpringClass.shop.entity.Products.QProductLikes;
-import SpringClass.shop.entity.Products.QProducts;
-import SpringClass.shop.entity.Users.QUsers;
-import SpringClass.shop.enums.GenderRole;
-import SpringClass.shop.enums.PriceSortType;
-import SpringClass.shop.enums.ProductCategoryType;
-import SpringClass.shop.enums.SortType;
-import com.querydsl.core.BooleanBuilder;
-import com.querydsl.core.types.OrderSpecifier;
-import com.querydsl.core.types.dsl.Expressions;
-import com.querydsl.core.types.dsl.NumberExpression;
-import com.querydsl.jpa.JPAExpressions;
-import com.querydsl.jpa.JPQLQuery;
-import com.querydsl.jpa.impl.JPAQueryFactory;
-import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.support.PageableExecutionUtils;
-import org.springframework.stereotype.Repository;
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
+on:
+  push:
+    branches: [ main ]
 
-@Repository
-@RequiredArgsConstructor
-public class ProductsRepositoryImpl implements ProductsRepositoryCustom {
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
 
-    private final JPAQueryFactory queryFactory;
-    private final QProducts products = QProducts.products;
-    private final QProductCategories productCategories = QProductCategories.productCategories;
-    private final QProductLikes productLikes = QProductLikes.productLikes;
-    private final QUsers user = QUsers.users;
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
 
+      - name: Set up JDK 21
+        uses: actions/setup-java@v3
+        with:
+          java-version: '21'
+          distribution: 'corretto'
 
-    @Override
-    public Page<Products> findProductsWithDynamicConditions(
-            PriceSortType priceSortType,
-            ProductCategoryType productCategoryType,
-            GenderRole genderRole,
-            SortType sortType,
-            Pageable pageable
-    ) {
-        // 옵션
-        BooleanBuilder builder = getWhereClause(productCategoryType);
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
 
-        // 정렬
-        List<OrderSpecifier<?>> orderSpecifiers = getOrderSpecifiers(priceSortType, sortType, genderRole);
+      - name: Build with Gradle
+        run: ./gradlew clean build -x test
 
+      - name: Docker Hub 로그인
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
 
-        List<Products> content = queryFactory
-                .selectFrom(products)
-                .where(builder)
-                .offset(pageable.getOffset())
-                .limit(pageable.getPageSize())
-                .orderBy(orderSpecifiers.toArray(new OrderSpecifier[0]))
-                .fetch();
+      - name: Docker 이미지 빌드 & 푸시
+        run: |
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/dragonfruit-market-api:latest .
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/dragonfruit-market-api:latest
 
-
-        Long totalCount = queryFactory
-                .select(products.count())
-                .from(products)
-                .where(builder)
-                .fetchOne();
-
-
-        return PageableExecutionUtils.getPage(content, pageable, () -> Objects.requireNonNullElse(totalCount, 0L));
-    }
-
-    private BooleanBuilder getWhereClause(ProductCategoryType categoryType) {
-        BooleanBuilder builder = new BooleanBuilder();
-
-        builder.and(products.deletedAt.isNull());
-
-
-        if (categoryType != null) {
-            builder.and(
-                    JPAExpressions
-                            .selectOne()
-                            .from(productCategories)
-                            .where(
-                                    productCategories.product.eq(products),
-                                    productCategories.category.name.eq(categoryType.name())
-                            )
-                            .exists()
-            );
-        }
-
-        return builder;
-    }
-
-    // 정렬
-    private List<OrderSpecifier<?>> getOrderSpecifiers(PriceSortType priceSortType, SortType sortType, GenderRole genderRole) {
-
-        Stream<OrderSpecifier<?>> sortStream = Stream.empty();
-
-        // 성별 정렬(성별 좋아요순)
-        if (genderRole != null) {
-
-            JPQLQuery<Long> subquery = JPAExpressions
-                    .select(productLikes.count())
-                    .from(productLikes)
-                    .join(productLikes.user, user)
-                    .where(
-                            productLikes.product.eq(products),
-                            user.gender.eq(genderRole)
-                    );
-
-            NumberExpression<Long> genderLikeCount =
-                    Expressions.numberTemplate(Long.class, "({0})", subquery);
-
-            sortStream = Stream.concat(sortStream, Stream.of(genderLikeCount.desc()));
-        }
-
-        // 가격
-        if (sortType == SortType.POPULAR) {
-            sortStream = Stream.concat(sortStream, Stream.of(products.likeCount.desc()));
-        } else if (sortType == SortType.OLDEST) {
-            sortStream = Stream.concat(sortStream, Stream.of(products.createdAt.asc()));
-        }
-
-
-        if (priceSortType == PriceSortType.ASC) {
-            sortStream = Stream.concat(sortStream, Stream.of(products.price.asc()));
-        } else if (priceSortType == PriceSortType.DESC) {
-            sortStream = Stream.concat(sortStream, Stream.of(products.price.desc()));
-        }
-
-        // 기본 최신순
-        sortStream = Stream.concat(sortStream, Stream.of(products.createdAt.desc()));
-
-        return sortStream.collect(Collectors.toList());
-    }
-}
+      - name: EC2 배포
+        uses: appleboy/ssh-action@v0.1.10
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ec2-user
+          key: ${{ secrets.EC2_KEY }}
+          script: |
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/dragonfruit-market-api:latest
+            docker stop dragonfruit-market-api || true
+            docker rm dragonfruit-market-api || true
+            docker run -d -p 8282:8282 \
+              --name dragonfruit-market-api \
+              -e JWT_SECRET="${{ secrets.JWT_SECRET }}" \
+              -e DB_URL="${{ secrets.DB_URL }}" \
+              -e DB_USERNAME="${{ secrets.DB_USERNAME }}" \
+              -e DB_PASSWORD="${{ secrets.DB_PASSWORD }}" \
+              -e AWS_ACCESS_KEY="${{ secrets.AWS_ACCESS_KEY }}" \
+              -e AWS_SECRET_KEY="${{ secrets.AWS_SECRET_KEY }}" \
+              -e ADMIN_EMAIL="${{ secrets.ADMIN_EMAIL }}" \
+              -e AWS_REGION="${{ secrets.AWS_REGION }}" \
+              -e SPRING_PROFILES_ACTIVE=prod \
+              ${{ secrets.DOCKERHUB_USERNAME }}/dragonfruit-market-api:latest
