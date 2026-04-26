@@ -136,6 +136,27 @@ public class GlobalApiResponseHandler {
                 .body(ApiResponse.fail(e.getMessage()));
     }
 
+    // 존재하지 않는 주문 처리
+    @ExceptionHandler(OrderNotFoundException.class)
+    public ResponseEntity<ApiResponse<Void>> handleOrderNotFoundException(OrderNotFoundException e) {
+        return ResponseEntity.status(404)
+                .body(ApiResponse.fail(e.getMessage()));
+    }
+
+    // 재고 부족 처리
+    @ExceptionHandler(InsufficientStockException.class)
+    public ResponseEntity<ApiResponse<Void>> handleInsufficientStockException(InsufficientStockException e) {
+        return ResponseEntity.status(400)
+                .body(ApiResponse.fail(e.getMessage()));
+    }
+
+    // 주문 취소 불가 처리
+    @ExceptionHandler(OrderCancelNotAllowedException.class)
+    public ResponseEntity<ApiResponse<Void>> handleOrderCancelNotAllowedException(OrderCancelNotAllowedException e) {
+        return ResponseEntity.status(400)
+                .body(ApiResponse.fail(e.getMessage()));
+    }
+
 
 
 
