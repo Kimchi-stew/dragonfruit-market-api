@@ -196,6 +196,12 @@ public class OrderService {
         Orders order = ordersRepository.findById(orderId)
                 .orElseThrow(() -> new OrderNotFoundException("주문을 찾을 수 없습니다."));
 
+        boolean ownsOrderItem = order.getItems().stream()
+                .anyMatch(item -> item.getProduct().getSeller().getId().equals(seller.getId()));
+        if (!ownsOrderItem) {
+            throw new ForbiddenException("해당 주문에 대한 권한이 없습니다.");
+        }
+
         OrderStatus newStatus = request.getOrderStatus();
 
         if (newStatus == OrderStatus.SHIPPED) {
