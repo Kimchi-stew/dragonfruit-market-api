@@ -20,6 +20,4 @@ public class SignupRequest {
 
     @NotBlank(message = "성별은 필수 입력값입니다.")
     private GenderRole gender;
-    private String profileImage;
-
 }

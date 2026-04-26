@@ -64,7 +64,7 @@ public class UserService {
                 .nickname(request.getNickname())
                 .gender(request.getGender())
                 .userRole(UserRole.USER)
-                .profileImage(request.getProfileImage())
+                .profileImage(null)
                 .build();
         usersRepository.save(user);
     }
