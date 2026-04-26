@@ -157,6 +157,13 @@ public class GlobalApiResponseHandler {
                 .body(ApiResponse.fail(e.getMessage()));
     }
 
+    // 존재하지 않는 문의 처리
+    @ExceptionHandler(InquiryNotFoundException.class)
+    public ResponseEntity<ApiResponse<Void>> handleInquiryNotFoundException(InquiryNotFoundException e) {
+        return ResponseEntity.status(404)
+                .body(ApiResponse.fail(e.getMessage()));
+    }
+
 
 
 
