@@ -108,6 +108,13 @@ public class GlobalApiResponseHandler {
                 .body(ApiResponse.fail("알림이 전송 실패 했습니다."));
     }
 
+    // 이메일 인증 코드가 유효하지 않거나 일치하지 않을 때 처리
+    @ExceptionHandler(InvalidVerificationCodeException.class)
+    public ResponseEntity<ApiResponse<Void>> handleInvalidVerificationCodeException(InvalidVerificationCodeException e) {
+        return ResponseEntity.status(400)
+                .body(ApiResponse.fail(e.getMessage()));
+    }
+
 
 
 

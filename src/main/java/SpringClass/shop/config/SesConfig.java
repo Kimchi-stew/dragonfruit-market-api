@@ -1,31 +1,59 @@
-package SpringClass.shop.config;
+name: Deploy to EC2
 
+on:
+  push:
+    branches: [ main ]
 
-import io.lettuce.core.dynamic.annotation.Value;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
-import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
-import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
-import software.amazon.awssdk.regions.Region;
-import software.amazon.awssdk.services.ses.SesClient;
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
 
-@Configuration
-public class SesConfig {
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
 
-    @Value("${AWS_SES_ACCESS-KEY}")
-    private String accessKey;
-    @Value("${AWS_SES_SECRET-KEY}")
-    private String secretKey;
-    @Value("${AWS_REGION}")
-    private String region;
+      - name: Set up JDK 21
+        uses: actions/setup-java@v3
+        with:
+          java-version: '21'
+          distribution: 'corretto'
 
-    @Bean
-    public SesClient amazonSimpleEmailService() {
-        AwsBasicCredentials awsBasicCredentials = AwsBasicCredentials.create(accessKey, secretKey);
+      - name: Grant execute permission for gradlew
+        run: chmod +x gradlew
 
-        return SesClient.builder()
-                .region(Region.of(region))
-                .credentialsProvider(StaticCredentialsProvider.create(awsBasicCredentials))
-                .build();
-    }
-}
+      - name: Build with Gradle
+        run: ./gradlew clean build -x test
+
+      - name: Docker Hub 로그인
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Docker 이미지 빌드 & 푸시
+        run: |
+          docker build -t ${{ secrets.DOCKERHUB_USERNAME }}/dragonfruit-market-api:latest .
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/dragonfruit-market-api:latest
+
+      - name: EC2 배포
+        uses: appleboy/ssh-action@v0.1.10
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ec2-user
+          key: ${{ secrets.EC2_KEY }}
+          script: |
+            docker pull ${{ secrets.DOCKERHUB_USERNAME }}/dragonfruit-market-api:latest
+            docker stop dragonfruit-market-api || true
+            docker rm dragonfruit-market-api || true
+            docker run -d -p 8282:8282 \
+              --name dragonfruit-market-api \
+              -e JWT_SECRET="${{ secrets.JWT_SECRET }}" \
+              -e DB_URL="${{ secrets.DB_URL }}" \
+              -e DB_USERNAME="${{ secrets.DB_USERNAME }}" \
+              -e DB_PASSWORD="${{ secrets.DB_PASSWORD }}" \
+              -e AWS_ACCESS_KEY="${{ secrets.AWS_ACCESS_KEY }}" \
+              -e AWS_SECRET_KEY="${{ secrets.AWS_SECRET_KEY }}" \
+              -e ADMIN_EMAIL="${{ secrets.ADMIN_EMAIL }}" \
+              -e AWS_REGION="${{ secrets.AWS_REGION }}" \
+              -e SPRING_PROFILES_ACTIVE=prod \
+              ${{ secrets.DOCKERHUB_USERNAME }}/dragonfruit-market-api:latest

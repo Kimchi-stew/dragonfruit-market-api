@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir -p src/main/java/SpringClass/shop/entity/Categories src/main/java/SpringClass/shop/entity/Payments src/main/java/SpringClass/shop/entity/Cart src/main/java/SpringClass/shop/entity/Notifications)",
+      "Bash(git mv *)"
+    ]
+  }
+}
