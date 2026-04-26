@@ -4,12 +4,16 @@ import SpringClass.shop.dto.Sellers.request.SellerRequest;
 import SpringClass.shop.dto.Sellers.response.SellerDeleteDTO;
 import SpringClass.shop.dto.Sellers.response.SellerFollowDTO;
 import SpringClass.shop.dto.Sellers.response.SellerListDTO;
+import SpringClass.shop.dto.Sellers.response.SellerProductResponse;
 import SpringClass.shop.dto.Sellers.response.SellerResponse;
 import SpringClass.shop.dto.common.response.LikesResponseDTO;
 import SpringClass.shop.global.ApiResponse;
 import SpringClass.shop.service.SellerService;
 import io.swagger.v3.oas.annotations.Operation;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -71,6 +75,15 @@ public class SellerController {
     public ResponseEntity<ApiResponse<SellerFollowDTO>> followSeller(@PathVariable Long id) {
         SellerFollowDTO result = sellerService.followSeller(id);
         return ResponseEntity.ok(ApiResponse.ok(result, "처리되었습니다."));
+    }
+
+    @GetMapping("/{id}/products")
+    @Operation(summary = "특정 상점 상품 목록 조회", description = "특정 판매자의 상품 목록을 조회하는 API입니다.")
+    public ResponseEntity<ApiResponse<Page<SellerProductResponse>>> getSellerProducts(
+            @PathVariable Long id,
+            @PageableDefault(size = 10) Pageable pageable) {
+        Page<SellerProductResponse> result = sellerService.getSellerProducts(id, pageable);
+        return ResponseEntity.ok(ApiResponse.ok(result, "조회되었습니다."));
     }
 
 
