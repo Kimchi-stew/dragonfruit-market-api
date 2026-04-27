@@ -37,9 +37,6 @@ public class Users {
     @Enumerated(EnumType.STRING)
     private GenderRole gender;
 
-    @Column(length = 1000)
-    private String profileImage;
-
     @Column(name="user_role")
     @Enumerated(EnumType.STRING)
     private UserRole userRole;

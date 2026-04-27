@@ -14,5 +14,5 @@ import java.util.List;
 public class ReviewRequest {
     private Integer rating;
     private String content;
-    private List<String> images;
+    private List<Long> mediaIds;
 }
