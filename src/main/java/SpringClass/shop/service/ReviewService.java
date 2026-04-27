@@ -21,6 +21,7 @@ import SpringClass.shop.repository.Reviews.ReviewImagesRepository;
 import SpringClass.shop.repository.Reviews.ReviewLikesRepository;
 import SpringClass.shop.repository.Reviews.ReviewRepository;
 import SpringClass.shop.security.SecurityUtils;
+import SpringClass.shop.service.FileService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
@@ -33,6 +34,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ReviewService {
     private final SecurityUtils SecurityUtils;
+    private final FileService fileService;
     private final ReviewRepository reviewRepository;
     private final ProductsRepository productsRepository;
     private final ReviewImagesRepository reviewImagesRepository;
@@ -52,21 +54,22 @@ public class ReviewService {
                 .createdAt(LocalDateTime.now())
                 .build();
         reviewRepository.save(reviews);
-        // 이미지 변환
-        List<String> imageUrls = request.getImages();
-        List<ReviewImages> savedImages = new ArrayList<>();
 
-        if (imageUrls != null && !imageUrls.isEmpty()) {
+        // 이미지 저장 및 medias entityId 연결
+        List<String> imageUrls = fileService.getUrlsByIds(request.getMediaIds());
+        List<ReviewImages> savedImages = new ArrayList<>();
+        if (!imageUrls.isEmpty()) {
             for (String imageUrl : imageUrls) {
                 ReviewImages reviewImage = ReviewImages.builder()
                         .review(reviews)
                         .imageUrl(imageUrl)
                         .createdAt(LocalDateTime.now())
                         .build();
-
                 savedImages.add(reviewImagesRepository.save(reviewImage));
             }
+            fileService.linkMedias(request.getMediaIds(), reviews.getId());
         }
+
         return ReviewResponseDTO.builder()
                 .id(reviews.getId())
                 .product(ProductSummaryDTO.from(product))
@@ -172,13 +175,11 @@ public class ReviewService {
         reviews.setRating(request.getRating());
         reviews.setContent(request.getContent());
 
-        if (request.getImages()!=null) {
-            // 기존 이미지 삭제
+        if (request.getMediaIds() != null) {
             reviews.getImages().clear();
 
-            // 새 이미지 추가
-            List<String> imageUrls = request.getImages();
-            if (imageUrls != null && !imageUrls.isEmpty()) {
+            List<String> imageUrls = fileService.getUrlsByIds(request.getMediaIds());
+            if (!imageUrls.isEmpty()) {
                 for (String imageUrl : imageUrls) {
                     ReviewImages reviewImage = ReviewImages.builder()
                             .review(reviews)
@@ -187,6 +188,7 @@ public class ReviewService {
                             .build();
                     reviews.getImages().add(reviewImage);
                 }
+                fileService.linkMedias(request.getMediaIds(), reviews.getId());
             }
         }
 

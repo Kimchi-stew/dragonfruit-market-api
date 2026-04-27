@@ -27,6 +27,7 @@ import SpringClass.shop.repository.Products.ProductWishRepository;
 import SpringClass.shop.repository.Reviews.ReviewRepository;
 import SpringClass.shop.repository.Sellers.SellersRepository;
 import SpringClass.shop.security.SecurityUtils;
+import SpringClass.shop.service.FileService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -42,6 +43,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ProductService {
     private final SecurityUtils SecurityUtils;
+    private final FileService fileService;
     private final SellersRepository sellersRepository;
     private final ProductsRepository productsRepository;
     private final ProductLikeRepository productLikeRepository;
@@ -81,18 +83,19 @@ public class ProductService {
                 .build();
         productCategoriesRepository.save(productCategories);
 
-        // 이미지 변환 및 저장
-        if (request.getImages() != null && !request.getImages().isEmpty()) {
-            List<ProductImages> imageEntities = request.getImages().stream()
+        // 이미지 저장 및 medias entityId 연결
+        List<String> imageUrls = fileService.getUrlsByIds(request.getMediaIds());
+        if (!imageUrls.isEmpty()) {
+            List<ProductImages> imageEntities = imageUrls.stream()
                     .map(url -> ProductImages.builder()
-                            .product(savedProduct) // 관계 연결
+                            .product(savedProduct)
                             .imageUrl(url)
                             .createdAt(LocalDateTime.now())
                             .updatedAt(LocalDateTime.now())
                             .build())
                     .collect(Collectors.toList());
-
             savedProduct.setImages(imageEntities);
+            fileService.linkMedias(request.getMediaIds(), savedProduct.getId());
         }
 
         return ProductResponse.builder()
@@ -156,18 +159,19 @@ public class ProductService {
         product.setStock(request.getStock());
 
 
-        // 이미지 변환 및 저장
-        if (request.getImages() != null && !request.getImages().isEmpty()) {
-            List<ProductImages> imageEntities = request.getImages().stream()
+        // 이미지 저장 및 medias entityId 연결
+        List<String> imageUrls = fileService.getUrlsByIds(request.getMediaIds());
+        if (!imageUrls.isEmpty()) {
+            List<ProductImages> imageEntities = imageUrls.stream()
                     .map(url -> ProductImages.builder()
-                            .product(product) // 관계 연결
+                            .product(product)
                             .imageUrl(url)
                             .createdAt(LocalDateTime.now())
                             .updatedAt(LocalDateTime.now())
                             .build())
                     .collect(Collectors.toList());
-
             product.setImages(imageEntities);
+            fileService.linkMedias(request.getMediaIds(), product.getId());
         }
 
         Products savedProduct = productsRepository.save(product);

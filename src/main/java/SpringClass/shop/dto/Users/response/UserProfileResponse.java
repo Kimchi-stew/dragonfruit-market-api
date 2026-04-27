@@ -17,7 +17,7 @@ public class UserProfileResponse {
     private String email;
     private String nickname;
     private GenderRole gender;
-    private String profileImage;
+    private String profileImageUrl;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 }
