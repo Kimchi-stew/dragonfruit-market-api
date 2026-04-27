@@ -43,6 +43,10 @@ public class InquiryService {
     public InquiryCreateResponse createInquiry(InquiryCreateRequest request) {
         Users user = securityUtils.getCurrentUser();
 
+        if (request.getProductId() == null && request.getSellerId() == null) {
+            throw new IllegalArgumentException("상품 또는 판매자 중 하나는 지정해야 합니다.");
+        }
+
         Products product = null;
         if (request.getProductId() != null) {
             product = productsRepository.findByIdAndDeletedAtIsNull(request.getProductId())
@@ -102,6 +106,10 @@ public class InquiryService {
 
         Inquiries inquiry = inquiriesRepository.findById(inquiryId)
                 .orElseThrow(() -> new InquiryNotFoundException("문의를 찾을 수 없습니다."));
+
+        if (inquiry.getStatus() == InquiryStatus.ANSWERED) {
+            throw new ForbiddenException("이미 답변된 문의입니다.");
+        }
 
         InquiryAnswers answer = InquiryAnswers.builder()
                 .inquiry(inquiry)

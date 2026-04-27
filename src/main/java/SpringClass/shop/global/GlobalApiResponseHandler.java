@@ -50,7 +50,7 @@ public class GlobalApiResponseHandler {
     @ExceptionHandler(ForbiddenException.class)
     public ResponseEntity<ApiResponse<Void>> handleForbiddenException(ForbiddenException e) {
         return ResponseEntity.status(403)
-                .body(ApiResponse.fail("수정할 수 있는 권한이 없습니다."));
+                .body(ApiResponse.fail(e.getMessage()));
     }
 
     // 비밀번호가 일치하지 않을 때 처리
@@ -168,6 +168,10 @@ public class GlobalApiResponseHandler {
     @ExceptionHandler(MediaNotFoundException.class)
     public ResponseEntity<ApiResponse<Void>> handleMediaNotFoundException(MediaNotFoundException e) {
         return ResponseEntity.status(404)
+    // 잘못된 요청 파라미터 처리
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ApiResponse<Void>> handleIllegalArgumentException(IllegalArgumentException e) {
+        return ResponseEntity.status(400)
                 .body(ApiResponse.fail(e.getMessage()));
     }
 
