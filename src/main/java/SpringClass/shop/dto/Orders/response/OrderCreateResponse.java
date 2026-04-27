@@ -14,6 +14,8 @@ import java.math.BigDecimal;
 @AllArgsConstructor
 public class OrderCreateResponse {
     private Long orderId;
+    private BigDecimal originalTotalPrice;
+    private BigDecimal discountAmount;
     private BigDecimal totalPrice;
     private OrderStatus orderStatus;
     private String paymentStatus;

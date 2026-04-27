@@ -13,6 +13,6 @@ public class ProductRequest {
     private BigDecimal price;
     private String description;
     private Integer stock;
-    private List<String> images;
+    private List<Long> mediaIds;
     private String category;
 }

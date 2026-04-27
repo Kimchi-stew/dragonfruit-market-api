@@ -14,5 +14,4 @@ public class UserProfileRequest {
     private String email;
     private String nickname;
     private GenderRole gender;
-    private String profileImage;
 }

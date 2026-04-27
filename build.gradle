@@ -43,6 +43,10 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-thymeleaf' // 이메일을 템플릿으로 전송
 	implementation 'software.amazon.awssdk:ses:2.29.46' // AWS SDK
 
+	// s3
+	implementation 'org.springframework.cloud:spring-cloud-starter-aws:2.2.6.RELEASE'
+
+	// lombok
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
 
