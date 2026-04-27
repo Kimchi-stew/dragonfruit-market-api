@@ -164,6 +164,13 @@ public class GlobalApiResponseHandler {
                 .body(ApiResponse.fail(e.getMessage()));
     }
 
+    // 존재하지 않는 미디어 처리
+    @ExceptionHandler(MediaNotFoundException.class)
+    public ResponseEntity<ApiResponse<Void>> handleMediaNotFoundException(MediaNotFoundException e) {
+        return ResponseEntity.status(404)
+                .body(ApiResponse.fail(e.getMessage()));
+    }
+
 
 
 

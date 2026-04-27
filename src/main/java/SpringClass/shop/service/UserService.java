@@ -29,6 +29,9 @@ import SpringClass.shop.repository.Reviews.ReviewRepository;
 import SpringClass.shop.repository.Sellers.SellerFollowRepository;
 import SpringClass.shop.repository.Sellers.SellerLikesRepository;
 import SpringClass.shop.repository.Sellers.SellersRepository;
+import SpringClass.shop.entity.Medias.Medias;
+import SpringClass.shop.enums.MediaEntityType;
+import SpringClass.shop.repository.Medias.MediasRepository;
 import SpringClass.shop.repository.Users.UsersRepository;
 import SpringClass.shop.security.SecurityUtils;
 import lombok.RequiredArgsConstructor;
@@ -42,6 +45,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class UserService {
     private final SecurityUtils SecurityUtils;
+    private final MediasRepository mediasRepository;
     private final ProductLikeRepository productLikeRepository;
     private final ProductsRepository productsRepository;
     private final ProductWishRepository productWishRepository;
@@ -64,18 +68,21 @@ public class UserService {
                 .nickname(request.getNickname())
                 .gender(request.getGender())
                 .userRole(UserRole.USER)
-                .profileImage(null)
                 .build();
         usersRepository.save(user);
     }
 
     public UserProfileResponse getProfile() {
         Users user = SecurityUtils.getCurrentUser();
+        String profileImageUrl = mediasRepository
+                .findTopByEntityTypeAndEntityIdOrderByCreatedAtDesc(MediaEntityType.PROFILE, user.getId())
+                .map(Medias::getUrl)
+                .orElse(null);
         return UserProfileResponse.builder()
                 .id(user.getId())
                 .email(user.getEmail())
                 .nickname(user.getNickname())
-                .profileImage(user.getProfileImage())
+                .profileImageUrl(profileImageUrl)
                 .gender(user.getGender())
                 .createdAt(user.getCreatedAt())
                 .updatedAt(user.getUpdatedAt())
@@ -97,13 +104,16 @@ public class UserService {
         user.setEmail(request.getEmail());
         user.setNickname(request.getNickname());
         user.setGender(request.getGender());
-        user.setProfileImage(request.getProfileImage());
         usersRepository.save(user);
+        String profileImageUrl = mediasRepository
+                .findTopByEntityTypeAndEntityIdOrderByCreatedAtDesc(MediaEntityType.PROFILE, user.getId())
+                .map(Medias::getUrl)
+                .orElse(null);
         return UserProfileResponse.builder()
                 .id(user.getId())
                 .email(user.getEmail())
                 .nickname(user.getNickname())
-                .profileImage(user.getProfileImage())
+                .profileImageUrl(profileImageUrl)
                 .gender(user.getGender())
                 .createdAt(user.getCreatedAt())
                 .updatedAt(user.getUpdatedAt())

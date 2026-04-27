@@ -3,15 +3,19 @@ package SpringClass.shop.service;
 import SpringClass.shop.dto.Orders.request.OrderCreateRequest;
 import SpringClass.shop.dto.Orders.request.OrderStatusUpdateRequest;
 import SpringClass.shop.dto.Orders.response.*;
+import SpringClass.shop.entity.Coupon.Coupons;
+import SpringClass.shop.entity.Coupon.UserCoupons;
 import SpringClass.shop.entity.Orders.OrderItems;
 import SpringClass.shop.entity.Orders.Orders;
 import SpringClass.shop.entity.Payments.Payments;
 import SpringClass.shop.entity.Products.Products;
 import SpringClass.shop.entity.Sellers.Sellers;
 import SpringClass.shop.entity.Users.Users;
+import SpringClass.shop.enums.DiscountType;
 import SpringClass.shop.enums.NotificationType;
 import SpringClass.shop.enums.OrderStatus;
 import SpringClass.shop.exceptions.*;
+import SpringClass.shop.repository.Coupon.UserCouponsRepository;
 import SpringClass.shop.repository.Orders.OrderItemsRepository;
 import SpringClass.shop.repository.Orders.OrdersRepository;
 import SpringClass.shop.repository.Payments.PaymentsRepository;
@@ -34,6 +38,7 @@ import java.util.stream.Collectors;
 public class OrderService {
 
     private final SecurityUtils securityUtils;
+    private final UserCouponsRepository userCouponsRepository;
     private final OrdersRepository ordersRepository;
     private final OrderItemsRepository orderItemsRepository;
     private final PaymentsRepository paymentsRepository;
@@ -57,6 +62,40 @@ public class OrderService {
             }
 
             totalPrice = totalPrice.add(product.getPrice().multiply(BigDecimal.valueOf(itemReq.getQuantity())));
+        }
+
+        // 쿠폰 할인 적용
+        BigDecimal originalTotalPrice = totalPrice;
+        BigDecimal discountAmount = BigDecimal.ZERO;
+
+        if (request.getCouponId() != null) {
+            UserCoupons userCoupon = userCouponsRepository.findByIdAndUser(request.getCouponId(), user)
+                    .orElseThrow(() -> new CouponNotFoundException("존재하지 않거나 본인 소유의 쿠폰이 아닙니다."));
+
+            if (userCoupon.isUsed()) {
+                throw new CouponAlreadyRegisteredException("이미 사용된 쿠폰입니다.");
+            }
+
+            Coupons coupon = userCoupon.getCoupon();
+
+            if (coupon.getExpiresAt().isBefore(LocalDateTime.now())) {
+                throw new CouponExpiredException("만료된 쿠폰입니다.");
+            }
+
+            if (coupon.getMinOrderPrice() != null && totalPrice.compareTo(coupon.getMinOrderPrice()) < 0) {
+                throw new CouponExpiredException("최소 주문 금액(" + coupon.getMinOrderPrice() + "원) 이상 주문 시 사용 가능합니다.");
+            }
+
+            if (coupon.getDiscountType() == DiscountType.RATE) {
+                discountAmount = totalPrice.multiply(coupon.getDiscountValue())
+                        .divide(BigDecimal.valueOf(100));
+            } else {
+                discountAmount = coupon.getDiscountValue().min(totalPrice);
+            }
+
+            totalPrice = totalPrice.subtract(discountAmount);
+            userCoupon.setUsed(true);
+            userCouponsRepository.save(userCoupon);
         }
 
         // 주문 생성
@@ -107,6 +146,8 @@ public class OrderService {
 
         return OrderCreateResponse.builder()
                 .orderId(order.getId())
+                .originalTotalPrice(originalTotalPrice)
+                .discountAmount(discountAmount)
                 .totalPrice(order.getTotalPrice())
                 .orderStatus(order.getOrderStatus())
                 .paymentStatus(payment.getPaymentStatus())
