@@ -3,6 +3,9 @@ package SpringClass.shop.config;
 import SpringClass.shop.global.TokenProvider;
 import SpringClass.shop.security.CustomUserDetailsService;
 import SpringClass.shop.security.JwtAuthenticationFilter;
+import SpringClass.shop.security.oauth.CookieOAuth2AuthorizationRequestRepository;
+import SpringClass.shop.security.oauth.CustomOauth2UserService;
+import SpringClass.shop.security.oauth.OAuth2LoginSuccessHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,6 +30,9 @@ public class SecurityConfig {
 
     private final TokenProvider tokenProvider;
     private final CustomUserDetailsService customUserDetailsService;
+    private final CustomOauth2UserService customOauth2UserService;
+    private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
+    private final CookieOAuth2AuthorizationRequestRepository cookieOAuth2AuthorizationRequestRepository;
 
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -46,22 +52,15 @@ public class SecurityConfig {
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-
-        configuration.setAllowedOriginPatterns(Arrays.asList("*")); // 모든 origin 허용 (개발용)
-
+        configuration.setAllowedOriginPatterns(Arrays.asList("*"));
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"));
-
         configuration.setAllowedHeaders(Arrays.asList("*"));
-
         configuration.setExposedHeaders(Arrays.asList("Authorization", "Last-Event-ID"));
-
         configuration.setAllowCredentials(true);
-
         configuration.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);
-
         return source;
     }
 
@@ -75,16 +74,21 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/users/signup").permitAll()
+                        .requestMatchers("/oauth2/**", "/login/oauth2/**").permitAll()
                         .requestMatchers(
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
                                 "/v3/api-docs/**"
                         ).permitAll()
-                        .requestMatchers(
-                                "/error"
-                        ).permitAll()
+                        .requestMatchers("/error").permitAll()
                         .anyRequest().authenticated()
-
+                )
+                .oauth2Login(oauth2 -> oauth2
+                        .authorizationEndpoint(auth -> auth
+                                .authorizationRequestRepository(cookieOAuth2AuthorizationRequestRepository))
+                        .userInfoEndpoint(userInfo -> userInfo
+                                .userService(customOauth2UserService))
+                        .successHandler(oAuth2LoginSuccessHandler)
                 )
                 .authenticationManager(authenticationManager)
                 .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);

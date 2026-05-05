@@ -6,7 +6,7 @@ import SpringClass.shop.entity.Reviews.Reviews;
 import SpringClass.shop.entity.Sellers.Sellers;
 import SpringClass.shop.entity.Users.Users;
 import SpringClass.shop.enums.NotificationType;
-import SpringClass.shop.exceptions.NotificationSendException;
+import SpringClass.shop.exceptions.notification.NotificationSendException;
 import SpringClass.shop.global.ApiResponse;
 import SpringClass.shop.repository.Notifications.EmitterRepository;
 import SpringClass.shop.repository.Notifications.NotificationRepository;
