@@ -6,6 +6,7 @@ import SpringClass.shop.dto.Sellers.response.SellerListDTO;
 import SpringClass.shop.dto.Sellers.response.SellerResponse;
 import SpringClass.shop.dto.Sellers.response.SellerSummaryDTO;
 import SpringClass.shop.dto.Users.request.SignupRequest;
+import SpringClass.shop.dto.Users.request.SocialSignupRequest;
 import SpringClass.shop.dto.Users.request.UserPasswordDTO;
 import SpringClass.shop.dto.Users.request.UserProfileRequest;
 import SpringClass.shop.dto.Users.response.UserProfileResponse;
@@ -19,9 +20,10 @@ import SpringClass.shop.entity.Sellers.SellerLikes;
 import SpringClass.shop.entity.Sellers.Sellers;
 import SpringClass.shop.entity.Users.Users;
 import SpringClass.shop.enums.UserRole;
-import SpringClass.shop.exceptions.PasswordMismatchException;
-import SpringClass.shop.exceptions.SellerNotFoundException;
-import SpringClass.shop.exceptions.UserAlreadyExistException;
+import SpringClass.shop.exceptions.common.ForbiddenException;
+import SpringClass.shop.exceptions.user.PasswordMismatchException;
+import SpringClass.shop.exceptions.seller.SellerNotFoundException;
+import SpringClass.shop.exceptions.user.UserAlreadyExistException;
 import SpringClass.shop.repository.Products.ProductLikeRepository;
 import SpringClass.shop.repository.Products.ProductsRepository;
 import SpringClass.shop.repository.Products.ProductWishRepository;
@@ -56,6 +58,19 @@ public class UserService {
     private final ReviewRepository reviewRepository;
     private final SellersRepository sellersRepository;
 
+
+    public void completeSocialSignup(SocialSignupRequest request) {
+        Users user = SecurityUtils.getCurrentUser();
+        if (user.getProvider() == null) {
+            throw new ForbiddenException("소셜 로그인 유저만 사용할 수 있습니다.");
+        }
+        if (user.getNickname() != null) {
+            throw new ForbiddenException("이미 추가 정보를 입력한 유저입니다.");
+        }
+        user.setNickname(request.getNickname());
+        user.setGender(request.getGender());
+        usersRepository.save(user);
+    }
 
     public void signup(SignupRequest request) {
         if (usersRepository.findByEmail(request.getEmail()).isPresent()) {
