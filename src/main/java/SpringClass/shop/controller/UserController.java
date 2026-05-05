@@ -4,6 +4,7 @@ import SpringClass.shop.dto.Reviews.response.ReviewListDTO;
 import SpringClass.shop.dto.Sellers.response.SellerListDTO;
 import SpringClass.shop.dto.Sellers.response.SellerResponse;
 import SpringClass.shop.dto.Users.request.SignupRequest;
+import SpringClass.shop.dto.Users.request.SocialSignupRequest;
 import SpringClass.shop.dto.Users.request.UserPasswordDTO;
 import SpringClass.shop.dto.Users.request.UserProfileRequest;
 import SpringClass.shop.dto.Users.response.UserProfileResponse;
@@ -28,6 +29,14 @@ public class UserController {
             (@RequestBody SignupRequest request) {
         userService.signup(request);
         return ResponseEntity.ok(ApiResponse.ok("회원가입이 완료되었습니다."));
+    }
+
+    @PostMapping("/social-signup")
+    @Operation(summary = "소셜 로그인 추가 정보 입력", description = "소셜 로그인 최초 가입 시 닉네임·성별을 입력하는 API 입니다. 소셜 로그인 후 발급된 JWT를 Authorization 헤더에 포함해야 합니다.")
+    public ResponseEntity<ApiResponse<Void>> completeSocialSignup(
+            @RequestBody SocialSignupRequest request) {
+        userService.completeSocialSignup(request);
+        return ResponseEntity.ok(ApiResponse.ok("추가 정보 입력이 완료되었습니다."));
     }
 
     @GetMapping("/profile")

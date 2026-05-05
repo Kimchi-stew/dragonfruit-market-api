@@ -30,16 +30,24 @@ public class Users {
     @Column(nullable = false)
     private String password;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     private String nickname;
 
-    @Column(nullable = false)
+    @Column(nullable = true)
     @Enumerated(EnumType.STRING)
     private GenderRole gender;
 
     @Column(name="user_role")
     @Enumerated(EnumType.STRING)
     private UserRole userRole;
+
+
+    // 소셜 로그인
+    @Column(name="provider")
+    private String provider;
+
+    @Column(name="provider_id")
+    private String providerId;
 
     @Column(nullable = false)
     @CreatedDate
