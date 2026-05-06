@@ -22,7 +22,9 @@ public class KakaoUserDetails implements OAuth2UserInfo {
 
     @Override
     public String getEmail() {
-        return (String) ((Map) attributes.get("kakao_account")).get("email");
+        Map<?, ?> kakaoAccount = (Map<?, ?>) attributes.get("kakao_account");
+        if (kakaoAccount == null) return null;
+        return (String) kakaoAccount.get("email");
     }
 
 }

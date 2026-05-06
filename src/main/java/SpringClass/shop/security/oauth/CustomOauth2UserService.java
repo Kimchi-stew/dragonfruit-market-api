@@ -45,6 +45,12 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
         String providerId = oAuth2UserInfo.getProviderId();
         String email = oAuth2UserInfo.getEmail();
 
+        // 카카오 이메일 미동의 또는 미인증 계정 처리
+        if (email == null || email.isEmpty()) {
+            log.warn("소셜 로그인 이메일 미제공 - provider: {}, providerId: {}", provider, providerId);
+            email = provider + "_" + providerId + "@social.login";
+        }
+
         // 유저가 없을 때 바로 오류를 안 내리기 위해 Optional 사용
         Optional<Users> optionalUser = userRepository.findByEmail(email);
         Users user;

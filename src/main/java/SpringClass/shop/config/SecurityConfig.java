@@ -5,6 +5,7 @@ import SpringClass.shop.security.CustomUserDetailsService;
 import SpringClass.shop.security.JwtAuthenticationFilter;
 import SpringClass.shop.security.oauth.CookieOAuth2AuthorizationRequestRepository;
 import SpringClass.shop.security.oauth.CustomOauth2UserService;
+import SpringClass.shop.security.oauth.OAuth2LoginFailureHandler;
 import SpringClass.shop.security.oauth.OAuth2LoginSuccessHandler;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -32,6 +33,7 @@ public class SecurityConfig {
     private final CustomUserDetailsService customUserDetailsService;
     private final CustomOauth2UserService customOauth2UserService;
     private final OAuth2LoginSuccessHandler oAuth2LoginSuccessHandler;
+    private final OAuth2LoginFailureHandler oAuth2LoginFailureHandler;
     private final CookieOAuth2AuthorizationRequestRepository cookieOAuth2AuthorizationRequestRepository;
 
     @Bean
@@ -89,6 +91,7 @@ public class SecurityConfig {
                         .userInfoEndpoint(userInfo -> userInfo
                                 .userService(customOauth2UserService))
                         .successHandler(oAuth2LoginSuccessHandler)
+                        .failureHandler(oAuth2LoginFailureHandler)
                 )
                 .authenticationManager(authenticationManager)
                 .addFilterBefore(jwtAuthenticationFilter(), UsernamePasswordAuthenticationFilter.class);
