@@ -13,6 +13,7 @@ import SpringClass.shop.entity.Sellers.SellerFollow;
 import SpringClass.shop.entity.Sellers.SellerLikes;
 import SpringClass.shop.entity.Sellers.Sellers;
 import SpringClass.shop.entity.Users.Users;
+import SpringClass.shop.enums.UserRole;
 import SpringClass.shop.exceptions.common.ForbiddenException;
 import SpringClass.shop.exceptions.seller.SellerNotFoundException;
 import SpringClass.shop.repository.Products.ProductsRepository;
@@ -41,6 +42,7 @@ public class SellerService {
     private final SellerFollowRepository sellerFollowRepository;
     private final NotificationService notificationService;
 
+    @Transactional
     public SellerResponse createSeller(SellerRequest request) {
         // user 정보 가져오기 (baarer token에서 추출)
         Users user = SecurityUtils.getCurrentUser();
@@ -54,7 +56,8 @@ public class SellerService {
                 .followCount(0)
                 .createdAt(LocalDateTime.now())
                 .build();
-        sellersRepository.save(sellers);
+
+        user.setUserRole(UserRole.SELLER);
 
         Sellers savedSeller = sellersRepository.save(sellers);
 
@@ -156,6 +159,8 @@ public class SellerService {
             throw new ForbiddenException("삭제할 수 있는 권한이 없습니다.");
         }
         sellers.setDeletedAt(LocalDateTime.now());
+        user.setUserRole(UserRole.USER);
+
         // 상품들도 같이 논리 삭제
         List<Products> products = productsRepository.findAllBySeller(sellers);
         products.forEach(product -> product.setDeletedAt(LocalDateTime.now()));
