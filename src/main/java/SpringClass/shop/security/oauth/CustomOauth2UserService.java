@@ -51,30 +51,29 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
             email = provider + "_" + providerId + "@social.login";
         }
 
-        // 유저가 없을 때 바로 오류를 안 내리기 위해 Optional 사용
         Optional<Users> optionalUser = userRepository.findByEmail(email);
         Users user;
-        // db에 사용자가 없을 때 회원가입된 후 토큰 반환
+        boolean isNewUser;
+
         if (optionalUser.isEmpty()) {
             user = Users.builder()
-                    .email(email) // 로그인 아이디
-                    .password("SOCIAL_LOGIN") // 소셜 로그인용 임의 비번
+                    .email(email)
+                    .password("SOCIAL_LOGIN")
                     .provider(provider)
                     .providerId(providerId)
                     .userRole(UserRole.USER)
                     .build();
             userRepository.save(user);
-
-        } else{
+            isNewUser = true;
+        } else {
             user = optionalUser.get();
-            // 기존 유저라면 provider 정보 업데이트
             if (!provider.equals(user.getProvider())) {
                 user.setProvider(provider);
                 user.setProviderId(providerId);
             }
-
+            isNewUser = false;
         }
 
-        return new CustomOauth2UserDetails(user, oAuth2User.getAttributes());
+        return new CustomOauth2UserDetails(user, oAuth2User.getAttributes(), isNewUser);
     }
 }
