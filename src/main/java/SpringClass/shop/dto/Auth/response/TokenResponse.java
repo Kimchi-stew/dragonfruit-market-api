@@ -10,4 +10,5 @@ import lombok.Getter;
 public class TokenResponse {
     private String accessToken;
     private String refreshToken;
+    private Boolean isNewUser;
 }
