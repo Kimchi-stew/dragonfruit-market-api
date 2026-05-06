@@ -83,7 +83,10 @@ public class AuthService {
         String newAccessToken = tokenProvider.createToken(email);
         String newRefreshToken = tokenProvider.createRefreshToken(email);
         refreshTokenRepository.save(new RefreshToken(newRefreshToken, LocalDateTime.now().plusDays(7), user.getEmail()));
-        return new TokenResponse(newAccessToken, newRefreshToken);
+        return TokenResponse.builder()
+                .accessToken(newAccessToken)
+                .refreshToken(newRefreshToken)
+                .build();
     }
 
     @Transactional
