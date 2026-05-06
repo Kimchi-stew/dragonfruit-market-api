@@ -59,11 +59,14 @@ public class CookieOAuth2AuthorizationRequestRepository
     }
 
     private void addCookie(HttpServletResponse response, String name, String value, int maxAge) {
-        Cookie cookie = new Cookie(name, value);
-        cookie.setPath("/");
-        cookie.setHttpOnly(true);
-        cookie.setMaxAge(maxAge);
-        response.addCookie(cookie);
+        // SameSite=None은 Java Cookie API로 설정 불가하므로 헤더로 직접 설정
+        response.addHeader("Set-Cookie",
+                name + "=" + value +
+                        "; Path=/" +
+                        "; Max-Age=" + maxAge +
+                        "; HttpOnly" +
+                        "; Secure" +
+                        "; SameSite=None");
     }
 
     private void deleteCookie(HttpServletRequest request, HttpServletResponse response, String name) {
@@ -71,12 +74,13 @@ public class CookieOAuth2AuthorizationRequestRepository
         if (cookies == null) return;
         Arrays.stream(cookies)
                 .filter(c -> name.equals(c.getName()))
-                .forEach(c -> {
-                    c.setValue("");
-                    c.setPath("/");
-                    c.setMaxAge(0);
-                    response.addCookie(c);
-                });
+                .forEach(c -> response.addHeader("Set-Cookie",
+                        name + "=" +
+                                "; Path=/" +
+                                "; Max-Age=0" +
+                                "; HttpOnly" +
+                                "; Secure" +
+                                "; SameSite=None"));
     }
 
     private String serialize(OAuth2AuthorizationRequest request) {
