@@ -1,0 +1,30 @@
+spring:
+  datasource:
+    url: ${DB_URL}
+    username: ${DB_USERNAME}    # 환경 변수로 주입
+    password: ${DB_PASSWORD}    # 환경 변수로 주입
+  jpa:
+    show-sql: true
+  jwt:
+    secret: ${JWT_SECRET}       # 환경 변수로 주입 (32자 이상)
+
+server:
+  port: 8282
+  servlet:
+    context-path: /api
+  forward-headers-strategy: FRAMEWORK   # Nginx 등 프록시 뒤에 있을 때 필요
+
+springdoc:
+  swagger-ui:
+    enabled: true               # 운영 환경에서 비공개로 전환하려면 false
+
+# 서버에서 필요한 환경 변수 목록:
+# DB_URL        - 데이터베이스 접속 URL
+# DB_USERNAME   - 데이터베이스 계정
+# DB_PASSWORD   - 데이터베이스 비밀번호
+# JWT_SECRET    - JWT 서명용 시크릿 키 (32자 이상)
+# AWS_ACCESS_KEY
+# AWS_SECRET_KEY
+# ADMIN_EMAIL   - SES 발신 이메일
+# AWS_REGION
+# AWS_S3_BUCKET
