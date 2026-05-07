@@ -1,0 +1,20 @@
+spring:
+  datasource:
+    url: jdbc:mysql://localhost:3306/dragon_fruit_market
+    username: root                                          # 로컬 DB 계정
+    password: 비밀번호                                      # 로컬 DB 비밀번호
+  jwt:
+    secret: 32자_이상의_임의_시크릿_키_입력
+
+aws:
+  access-key: AWS_액세스_키
+  secret-key: AWS_시크릿_키
+  send-mail-from: 발신_이메일@example.com
+  region: ap-northeast-2
+  s3:
+    bucket: S3_버킷_이름
+
+cloud:
+  aws:
+    stack:
+      auto: false
