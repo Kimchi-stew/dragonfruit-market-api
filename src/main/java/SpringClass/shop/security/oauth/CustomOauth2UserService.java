@@ -71,7 +71,7 @@ public class CustomOauth2UserService extends DefaultOAuth2UserService {
                 user.setProvider(provider);
                 user.setProviderId(providerId);
             }
-            isNewUser = false;
+            isNewUser = (user.getNickname() == null || user.getNickname().isEmpty());
         }
 
         return new CustomOauth2UserDetails(user, oAuth2User.getAttributes(), isNewUser);
