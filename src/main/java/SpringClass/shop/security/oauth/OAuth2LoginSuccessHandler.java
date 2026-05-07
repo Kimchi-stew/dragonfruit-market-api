@@ -35,6 +35,7 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
 
         CustomOauth2UserDetails userDetails = (CustomOauth2UserDetails) authentication.getPrincipal();
         String email = userDetails.getUsername();
+        boolean isNewUser = userDetails.isNewUser();
 
         usersRepository.findByEmail(email)
                 .orElseThrow(() -> new UserNotFoundException("사용자가 존재하지 않습니다."));
@@ -49,8 +50,14 @@ public class OAuth2LoginSuccessHandler extends SimpleUrlAuthenticationSuccessHan
                 .expiryDate(LocalDateTime.now().plusDays(7))
                 .build());
 
-        TokenResponse tokenResponse = new TokenResponse(accessToken, refreshToken);
-        ApiResponse<TokenResponse> apiResponse = ApiResponse.ok(tokenResponse, "로그인이 완료되었습니다.");
+        TokenResponse tokenResponse = TokenResponse.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .isNewUser(isNewUser)
+                .build();
+
+        String message = isNewUser ? "추가 정보를 입력해주세요." : "로그인이 완료되었습니다.";
+        ApiResponse<TokenResponse> apiResponse = ApiResponse.ok(tokenResponse, message);
 
         response.setContentType("application/json;charset=UTF-8");
         response.getWriter().write(objectMapper.writeValueAsString(apiResponse));
