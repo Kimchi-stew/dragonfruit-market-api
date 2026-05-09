@@ -2,8 +2,8 @@ package SpringClass.shop.controller;
 
 import SpringClass.shop.dto.Media.response.FileResponse;
 import SpringClass.shop.enums.MediaEntityType;
-import SpringClass.shop.exceptions.ForbiddenException;
-import SpringClass.shop.exceptions.MediaNotFoundException;
+import SpringClass.shop.exceptions.common.ForbiddenException;
+import SpringClass.shop.exceptions.media.MediaNotFoundException;
 import SpringClass.shop.global.GlobalApiResponseHandler;
 import SpringClass.shop.service.FileService;
 import org.junit.jupiter.api.BeforeEach;

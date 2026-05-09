@@ -42,6 +42,12 @@ public class Payments {
     @Column(nullable = false, name="amount", precision = 10, scale = 2)
     private BigDecimal amount;
 
+    @Column(name = "toss_order_id", unique = true)
+    private String tossOrderId;
+
+    @Column(name = "order_name")
+    private String orderName;
+
     @Column(name="transaction_id", unique = true)
     private String transactionId;
 
