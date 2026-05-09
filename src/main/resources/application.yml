@@ -70,3 +70,8 @@ aws:
   region: ${AWS_REGION}
   s3:
     bucket: ${AWS_S3_BUCKET}
+
+toss:
+  payments:
+    secret-key: ${TOSS_SECRET_KEY:test_sk_zXLkKEypNArWmo50nX3lmeaxYG5R}
+    base-url: https://api.tosspayments.com/v1/payments

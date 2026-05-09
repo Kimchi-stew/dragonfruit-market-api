@@ -56,5 +56,6 @@ jobs:
               -e ADMIN_EMAIL="${{ secrets.ADMIN_EMAIL }}" \
               -e AWS_REGION="${{ secrets.AWS_REGION }}" \
               -e AWS_S3_BUCKET="${{ secrets.AWS_S3_BUCKET }}" \
+              -e TOSS_SECRET_KEY="${{ secrets.TOSS_SECRET_KEY }}" \
               -e SPRING_PROFILES_ACTIVE=prod \
               ${{ secrets.DOCKERHUB_USERNAME }}/dragonfruit-market-api:latest
