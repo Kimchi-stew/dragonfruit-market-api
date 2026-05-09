@@ -11,6 +11,8 @@ import SpringClass.shop.exceptions.coupon.CouponNotFoundException;
 import SpringClass.shop.exceptions.inquiry.InquiryNotFoundException;
 import SpringClass.shop.exceptions.media.MediaNotFoundException;
 import SpringClass.shop.exceptions.notification.NotificationSendException;
+import SpringClass.shop.exceptions.payment.PaymentNotFoundException;
+import SpringClass.shop.exceptions.payment.TossPaymentException;
 import SpringClass.shop.exceptions.order.InsufficientStockException;
 import SpringClass.shop.exceptions.order.OrderCancelNotAllowedException;
 import SpringClass.shop.exceptions.order.OrderNotFoundException;
@@ -167,6 +169,18 @@ public class GlobalApiResponseHandler {
     @ExceptionHandler(MediaNotFoundException.class)
     public ResponseEntity<ApiResponse<Void>> handleMediaNotFoundException(MediaNotFoundException e) {
         return ResponseEntity.status(404)
+                .body(ApiResponse.fail(e.getMessage()));
+    }
+
+    @ExceptionHandler(PaymentNotFoundException.class)
+    public ResponseEntity<ApiResponse<Void>> handlePaymentNotFoundException(PaymentNotFoundException e) {
+        return ResponseEntity.status(404)
+                .body(ApiResponse.fail(e.getMessage()));
+    }
+
+    @ExceptionHandler(TossPaymentException.class)
+    public ResponseEntity<ApiResponse<Void>> handleTossPaymentException(TossPaymentException e) {
+        return ResponseEntity.status(400)
                 .body(ApiResponse.fail(e.getMessage()));
     }
 
