@@ -12,6 +12,7 @@ import SpringClass.shop.entity.Products.*;
 import SpringClass.shop.entity.Sellers.Sellers;
 import SpringClass.shop.entity.Users.Users;
 import SpringClass.shop.dto.Products.response.RecommendProductDTO;
+import org.springframework.cache.annotation.Cacheable;
 import SpringClass.shop.enums.GenderRole;
 import SpringClass.shop.enums.PriceSortType;
 import SpringClass.shop.enums.ProductCategoryType;
@@ -46,7 +47,7 @@ import java.util.stream.Collectors;
 @Service
 @RequiredArgsConstructor
 public class ProductService {
-    private final SecurityUtils SecurityUtils;
+    private final SecurityUtils securityUtils;
     private final FileService fileService;
     private final SellersRepository sellersRepository;
     private final ProductsRepository productsRepository;
@@ -60,7 +61,7 @@ public class ProductService {
 
     public ProductResponse createProduct(ProductRequest request) {
         // user 정보 가져오기 (bearer token에서 추출)
-        Users user = SecurityUtils.getCurrentUser();
+        Users user = securityUtils.getCurrentUser();
 
         // 판매자(상점) 등록을 안 하면 오류
         Sellers seller = sellersRepository.findByUser(user)
@@ -148,7 +149,7 @@ public class ProductService {
 
     public ProductResponse patchProduct(Long id, ProductRequest request) {
         // user 정보 가져오기 (bearer token에서 추출)
-        Users user = SecurityUtils.getCurrentUser();
+        Users user = securityUtils.getCurrentUser();
 
 
 
@@ -217,7 +218,7 @@ public class ProductService {
     }
 
     public ProductResponse getProduct(Long id){
-        Optional<Users> userOpt = SecurityUtils.getCurrentUserOptional();
+        Optional<Users> userOpt = securityUtils.getCurrentUserOptional();
 
         // 상품 조회
         Products product = productsRepository.findByIdAndDeletedAtIsNull(id)
@@ -250,7 +251,14 @@ public class ProductService {
                         .storeName(product.getSeller().getStoreName())
                         .build())
                 .price(product.getPrice())
+                .description(product.getDescription())
+                .stock(product.getStock())
                 .likeCount(product.getLikeCount())
+                .images(product.getImages() != null
+                        ? product.getImages().stream().map(ProductImages::getImageUrl).collect(Collectors.toList())
+                        : List.of())
+                .createdAt(product.getCreatedAt())
+                .updatedAt(product.getUpdatedAt())
                 .wished(wished)
                 .category(productCategories.getCategory().getName())
                 .rating(avgRating)
@@ -258,7 +266,7 @@ public class ProductService {
     }
 
     public List<RecommendProductDTO> getRecommendations(int size) {
-        Optional<Users> userOpt = SecurityUtils.getCurrentUserOptional();
+        Optional<Users> userOpt = securityUtils.getCurrentUserOptional();
 
         if (userOpt.isPresent()) {
             Pageable pageable = PageRequest.of(0, size);
@@ -297,7 +305,7 @@ public class ProductService {
 
     @Transactional
     public ProductDeleteDTO deleteProduct(Long id) {
-        Users user = SecurityUtils.getCurrentUser();
+        Users user = securityUtils.getCurrentUser();
 
         Products product = productsRepository.findByIdAndDeletedAtIsNull(id)
                 .orElseThrow(() -> new ProductNotFoundException("상품을 찾을 수 없습니다."));
@@ -325,7 +333,7 @@ public class ProductService {
     @Transactional
     public LikesResponseDTO likeProduct(Long id) {
         // user 정보 가져오기 (bearer token에서 추출)
-        Users user = SecurityUtils.getCurrentUser();
+        Users user = securityUtils.getCurrentUser();
 
         Products product = productsRepository.findByIdAndDeletedAtIsNull(id)
                 .orElseThrow(() -> new ProductNotFoundException("상품을 찾을 수 없습니다."));
@@ -355,7 +363,7 @@ public class ProductService {
 
     public WishResponseDTO wishProduct(Long id) {
         // user 정보 가져오기 (baarer token에서 추출)
-        Users user = SecurityUtils.getCurrentUser();
+        Users user = securityUtils.getCurrentUser();
 
         Products product = productsRepository.findByIdAndDeletedAtIsNull(id)
                 .orElseThrow(() -> new ProductNotFoundException("상품을 찾을 수 없습니다."));
@@ -378,46 +386,24 @@ public class ProductService {
         return new WishResponseDTO(wished);
     }
 
-    public List<ProductListDTO> searchProduct(String keyword) {
-        // 검색어 없으면 null 처리
+    public Page<ProductListDTO> searchProduct(String keyword, Pageable pageable) {
         if (keyword == null || keyword.isBlank()) {
-            return null; // null 반환
+            return Page.empty();
         }
-        List<Products> products = productsRepository.findByDeletedAtIsNullAndNameContainingIgnoreCaseOrderByLikeCountDescCreatedAtDesc(keyword);
-
-        return products.stream().map(product -> {
-            String mainImage = null;
-            if (product.getImages() != null && !product.getImages().isEmpty()) {
-                mainImage = product.getImages().get(0).getImageUrl(); // 첫 번째 이미지
-            }
-
-            return ProductListDTO.builder()
-                    .id(product.getId())
-                    .seller(SellerSummaryDTO.builder()
-                            .id(product.getSeller().getId())
-                            .storeName(product.getSeller().getStoreName())
-                            .image(product.getSeller().getImage())
-                            .build())
-                    .name(product.getName())
-                    .price(product.getPrice())
-                    .likeCount(product.getLikeCount())
-                    .image(mainImage)
-                    .build();
-        }).collect(Collectors.toList());
+        return productsRepository
+                .findByDeletedAtIsNullAndNameContainingIgnoreCase(keyword, pageable)
+                .map(ProductListDTO::from);
     }
 
+    @Cacheable("categories")
     public List<CategoryResponse> getCategories() {
-        List<Categories> categories = categoriesRepository.findAll();
-
-        List<CategoryResponse> response = categories.stream()
+        return categoriesRepository.findAll().stream()
                 .map(category -> CategoryResponse.builder()
                         .id(category.getId())
                         .name(category.getName())
                         .createdAt(category.getCreatedAt())
                         .build())
                 .collect(Collectors.toList());
-
-        return response;
     }
 
 }

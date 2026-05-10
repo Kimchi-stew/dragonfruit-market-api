@@ -53,4 +53,7 @@ public interface ProductsRepository extends JpaRepository<Products, Long>, Produ
     // 상품 이름으로 검색 + 좋아요순 + 최신순
     List<Products> findByDeletedAtIsNullAndNameContainingIgnoreCaseOrderByLikeCountDescCreatedAtDesc(String keyword);
 
+    // 상품 이름으로 검색 (페이지네이션)
+    Page<Products> findByDeletedAtIsNullAndNameContainingIgnoreCase(String keyword, Pageable pageable);
+
 }
