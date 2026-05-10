@@ -85,9 +85,10 @@ public class ProductController {
 
     @GetMapping("/search")
     @Operation(summary = "상품검색", description = "상품 검색 시 사용하는 API 입니다.")
-    public ResponseEntity<ApiResponse<List<ProductListDTO>>> searchProduct
-            (@RequestParam(required = false) String keyword) {
-        List<ProductListDTO> result = productService.searchProduct(keyword);
+    public ResponseEntity<ApiResponse<Page<ProductListDTO>>> searchProduct(
+            @RequestParam(required = false) String keyword,
+            Pageable pageable) {
+        Page<ProductListDTO> result = productService.searchProduct(keyword, pageable);
         return ResponseEntity.ok(ApiResponse.ok(result, "검색되었습니다."));
     }
 
