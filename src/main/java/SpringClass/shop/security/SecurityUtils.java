@@ -9,6 +9,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 
+import java.util.Optional;
+
 @Component
 @RequiredArgsConstructor
 public class SecurityUtils {
@@ -34,6 +36,20 @@ public class SecurityUtils {
 
     public Long getCurrentUserId() {
         return getCurrentUser().getId();
+    }
+
+    public Optional<Users> getCurrentUserOptional() {
+        try {
+            Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+            if (authentication == null || !authentication.isAuthenticated()) return Optional.empty();
+            Object principal = authentication.getPrincipal();
+            if (principal instanceof org.springframework.security.core.userdetails.User springUser) {
+                return usersRepository.findByEmail(springUser.getUsername());
+            }
+            return Optional.empty();
+        } catch (Exception e) {
+            return Optional.empty();
+        }
     }
 }
 
