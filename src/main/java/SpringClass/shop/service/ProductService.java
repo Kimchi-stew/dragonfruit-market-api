@@ -11,6 +11,7 @@ import SpringClass.shop.entity.Categories.Categories;
 import SpringClass.shop.entity.Products.*;
 import SpringClass.shop.entity.Sellers.Sellers;
 import SpringClass.shop.entity.Users.Users;
+import SpringClass.shop.dto.Products.response.RecommendProductDTO;
 import SpringClass.shop.enums.GenderRole;
 import SpringClass.shop.enums.PriceSortType;
 import SpringClass.shop.enums.ProductCategoryType;
@@ -24,6 +25,8 @@ import SpringClass.shop.repository.Products.ProductCategoriesRepository;
 import SpringClass.shop.repository.Products.ProductLikeRepository;
 import SpringClass.shop.repository.Products.ProductsRepository;
 import SpringClass.shop.repository.Products.ProductWishRepository;
+import SpringClass.shop.repository.Products.UserBehaviorLogRepository;
+import SpringClass.shop.repository.Products.UserRecommendationRepository;
 import SpringClass.shop.repository.Reviews.ReviewRepository;
 import SpringClass.shop.repository.Sellers.SellersRepository;
 import SpringClass.shop.security.SecurityUtils;
@@ -31,6 +34,7 @@ import SpringClass.shop.service.FileService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import java.time.LocalDateTime;
@@ -51,6 +55,8 @@ public class ProductService {
     private final CategoriesRepository categoriesRepository;
     private final ProductCategoriesRepository productCategoriesRepository;
     private final ReviewRepository reviewRepository;
+    private final UserBehaviorLogRepository userBehaviorLogRepository;
+    private final UserRecommendationRepository userRecommendationRepository;
 
     public ProductResponse createProduct(ProductRequest request) {
         // user 정보 가져오기 (bearer token에서 추출)
@@ -211,13 +217,24 @@ public class ProductService {
     }
 
     public ProductResponse getProduct(Long id){
-        // user 정보 가져오기 (baarer token에서 추출)
-        Users user = SecurityUtils.getCurrentUser();
+        Optional<Users> userOpt = SecurityUtils.getCurrentUserOptional();
 
         // 상품 조회
         Products product = productsRepository.findByIdAndDeletedAtIsNull(id)
                 .orElseThrow(() -> new ProductNotFoundException("상품을 찾을 수 없습니다."));
-        boolean wished = productWishRepository.existsByUserAndProduct(user, product);
+
+        // 로그인 유저라면 VIEW 행동 로그 저장
+        userOpt.ifPresent(user -> userBehaviorLogRepository.save(
+                UserBehaviorLog.builder()
+                        .user(user)
+                        .product(product)
+                        .behaviorType("VIEW")
+                        .createdAt(LocalDateTime.now())
+                        .build()
+        ));
+
+        boolean wished = userOpt.map(user -> productWishRepository.existsByUserAndProduct(user, product))
+                .orElse(false);
 
         // 카테고리 가져오기
         ProductCategories productCategories = productCategoriesRepository.findByProduct(product)
@@ -238,6 +255,44 @@ public class ProductService {
                 .category(productCategories.getCategory().getName())
                 .rating(avgRating)
                 .build();
+    }
+
+    public List<RecommendProductDTO> getRecommendations(int size) {
+        Optional<Users> userOpt = SecurityUtils.getCurrentUserOptional();
+
+        if (userOpt.isPresent()) {
+            Pageable pageable = PageRequest.of(0, size);
+            List<UserRecommendation> recs = userRecommendationRepository
+                    .findByUserOrderByScoreDesc(userOpt.get(), pageable);
+
+            if (!recs.isEmpty()) {
+                return recs.stream().map(r -> RecommendProductDTO.builder()
+                        .productId(r.getProduct().getId())
+                        .name(r.getProduct().getName())
+                        .price(r.getProduct().getPrice())
+                        .thumbnailUrl(getThumbnailUrl(r.getProduct()))
+                        .score(r.getScore())
+                        .build()
+                ).collect(Collectors.toList());
+            }
+        }
+
+        // 비로그인 또는 추천 데이터 없는 유저 → 인기순 fallback
+        Pageable pageable = PageRequest.of(0, size);
+        Page<Products> popular = productsRepository.findAllByDeletedAtIsNullOrderByLikeCountDescCreatedAtDesc(pageable);
+        return popular.getContent().stream().map(p -> RecommendProductDTO.builder()
+                .productId(p.getId())
+                .name(p.getName())
+                .price(p.getPrice())
+                .thumbnailUrl(getThumbnailUrl(p))
+                .score(0.0)
+                .build()
+        ).collect(Collectors.toList());
+    }
+
+    private String getThumbnailUrl(Products product) {
+        List<ProductImages> images = product.getImages();
+        return (images != null && !images.isEmpty()) ? images.get(0).getImageUrl() : null;
     }
 
     @Transactional
