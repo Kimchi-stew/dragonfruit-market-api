@@ -5,6 +5,7 @@ import SpringClass.shop.dto.Products.request.ProductRequest;
 import SpringClass.shop.dto.Products.response.ProductDeleteDTO;
 import SpringClass.shop.dto.Products.response.ProductListDTO;
 import SpringClass.shop.dto.Products.response.ProductResponse;
+import SpringClass.shop.dto.Products.response.RecommendProductDTO;
 import SpringClass.shop.dto.Products.response.WishResponseDTO;
 import SpringClass.shop.dto.common.response.LikesResponseDTO;
 import SpringClass.shop.enums.GenderRole;
@@ -94,6 +95,14 @@ public class ProductController {
     @Operation(summary = "상품 카테고리 전체 조회", description = "카테고리 전체 조회 시 사용하는 API 입니다.")
     public ResponseEntity<ApiResponse<List<CategoryResponse>>> getCategories() {
         List<CategoryResponse> result = productService.getCategories();
+        return ResponseEntity.ok(ApiResponse.ok(result, "조회되었습니다."));
+    }
+
+    @GetMapping("/recommend")
+    @Operation(summary = "AI 개인화 상품 추천", description = "로그인 유저는 AI 추천 결과, 비로그인/신규 유저는 인기순으로 반환합니다.")
+    public ResponseEntity<ApiResponse<List<RecommendProductDTO>>> getRecommendations(
+            @RequestParam(defaultValue = "10") int size) {
+        List<RecommendProductDTO> result = productService.getRecommendations(size);
         return ResponseEntity.ok(ApiResponse.ok(result, "조회되었습니다."));
     }
 

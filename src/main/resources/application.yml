@@ -75,3 +75,6 @@ toss:
   payments:
     secret-key: ${TOSS_SECRET_KEY:test_sk_zXLkKEypNArWmo50nX3lmeaxYG5R}
     base-url: https://api.tosspayments.com/v1/payments
+
+ai:
+  internal-api-key: ${AI_INTERNAL_API_KEY:internal-secret-key}
