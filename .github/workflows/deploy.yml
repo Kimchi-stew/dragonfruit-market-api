@@ -45,17 +45,16 @@ jobs:
             docker pull ${{ secrets.DOCKERHUB_USERNAME }}/dragonfruit-market-api:latest
             docker stop dragonfruit-market-api || true
             docker rm dragonfruit-market-api || true
-            docker run -d -p 8282:8282 \
+            docker run -d \
               --name dragonfruit-market-api \
-              -e JWT_SECRET="${{ secrets.JWT_SECRET }}" \
+              --network redis-net \
+              -p 8282:8282 \
+              --restart always \
+              -e SPRING_PROFILES_ACTIVE=prod \
+              -e REDIS_HOST=redis-server \
+              -e REDIS_PORT=6379 \
               -e DB_URL="${{ secrets.DB_URL }}" \
               -e DB_USERNAME="${{ secrets.DB_USERNAME }}" \
               -e DB_PASSWORD="${{ secrets.DB_PASSWORD }}" \
-              -e AWS_ACCESS_KEY="${{ secrets.AWS_ACCESS_KEY }}" \
-              -e AWS_SECRET_KEY="${{ secrets.AWS_SECRET_KEY }}" \
-              -e ADMIN_EMAIL="${{ secrets.ADMIN_EMAIL }}" \
-              -e AWS_REGION="${{ secrets.AWS_REGION }}" \
-              -e AWS_S3_BUCKET="${{ secrets.AWS_S3_BUCKET }}" \
-              -e TOSS_SECRET_KEY="${{ secrets.TOSS_SECRET_KEY }}" \
-              -e SPRING_PROFILES_ACTIVE=prod \
-              ${{ secrets.DOCKERHUB_USERNAME }}/dragonfruit-market-api:latest
+              -e JWT_SECRET="${{ secrets.JWT_SECRET }}" \
+              yoonjeonggg/dragonfruit-market-api:latest

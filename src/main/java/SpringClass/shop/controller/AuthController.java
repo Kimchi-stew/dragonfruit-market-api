@@ -2,7 +2,7 @@ package SpringClass.shop.controller;
 
 import SpringClass.shop.dto.Auth.request.AutoLoginRequest;
 import SpringClass.shop.dto.Auth.request.LoginRequest;
-import SpringClass.shop.dto.Auth.request.SendEmailRequest;
+import SpringClass.shop.dto.Auth.request.SendEmailDto;
 import SpringClass.shop.dto.Auth.request.VerifyEmailRequest;
 import SpringClass.shop.dto.Auth.response.TokenResponse;
 import SpringClass.shop.global.ApiResponse;
@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/auth")
 public class AuthController {
     private final AuthService authService;
+
 
     @PostMapping("/login")
     @Operation(summary = "로그인", description = "로그인 시 사용하는 API 입니다.")
@@ -65,7 +66,7 @@ public class AuthController {
 
     @PostMapping("/send-email")
     @Operation(summary = "이메일 인증 코드 발송", description = "이메일에 인증 코드 발송 시 사용하는 API 입니다.")
-    public ResponseEntity<ApiResponse<Void>> sendEmail(@RequestBody SendEmailRequest request) {
+    public ResponseEntity<ApiResponse<Void>> sendEmail(@RequestBody SendEmailDto request) {
         authService.sendEmail(request);
         return ResponseEntity.ok(ApiResponse.ok("인증 코드가 발송되었습니다."));
     }
