@@ -9,7 +9,7 @@ spring:
 aws:
   access-key: AKIATQZCSSC35HEGJOO6
   secret-key: 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
-  send-mail-from: gimchijjim200@gmail.com
+  send-mail-from: no-reply@alvin1105.cloud
   region: ap-northeast-2
   s3:
     bucket: dragonfruit-242201301175-ap-northeast-2-an

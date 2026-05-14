@@ -22,6 +22,11 @@ import java.time.Duration;
 public class RedisCacheConfig {
 
     @Bean
+    public org.springframework.data.redis.core.StringRedisTemplate stringRedisTemplate(RedisConnectionFactory factory) {
+        return new org.springframework.data.redis.core.StringRedisTemplate(factory);
+    }
+
+    @Bean
     public RedisCacheManager cacheManager(RedisConnectionFactory factory) {
         ObjectMapper mapper = JsonMapper.builder()
                 .addModule(new JavaTimeModule())
