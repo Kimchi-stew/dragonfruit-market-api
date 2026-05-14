@@ -2,12 +2,11 @@ package SpringClass.shop.service;
 
 import SpringClass.shop.dto.Auth.request.AutoLoginRequest;
 import SpringClass.shop.dto.Auth.request.LoginRequest;
-import SpringClass.shop.dto.Auth.request.SendEmailRequest;
+import SpringClass.shop.dto.Auth.request.SendEmailDto;
 import SpringClass.shop.dto.Auth.request.VerifyEmailRequest;
 import SpringClass.shop.dto.Auth.response.TokenResponse;
 import SpringClass.shop.entity.Users.RefreshToken;
 import SpringClass.shop.entity.Users.Users;
-import SpringClass.shop.entity.Users.VerificationCode;
 import SpringClass.shop.enums.GenderRole;
 import SpringClass.shop.enums.UserRole;
 import SpringClass.shop.exceptions.user.InvalidVerificationCodeException;
@@ -15,7 +14,6 @@ import SpringClass.shop.exceptions.user.RefreshTokenNotFoundException;
 import SpringClass.shop.global.TokenProvider;
 import SpringClass.shop.repository.Users.RefreshTokenRepository;
 import SpringClass.shop.repository.Users.UsersRepository;
-import SpringClass.shop.repository.Users.VerificationCodeRepository;
 import SpringClass.shop.security.SecurityUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -134,7 +132,7 @@ class AuthServiceTest {
     @Test
     @DisplayName("이메일 발송 시 인증 코드 저장 및 SES 호출")
     void sendEmail_savesCodeAndCallsSes() {
-        SendEmailRequest request = new SendEmailRequest("test@test.com");
+        SendEmailDto request = new SendEmailDto("test@test.com");
 
         authService.sendEmail(request);
 
