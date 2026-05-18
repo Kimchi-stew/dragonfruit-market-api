@@ -15,6 +15,7 @@ import SpringClass.shop.exceptions.coupon.CouponNotFoundException;
 import SpringClass.shop.repository.Coupon.CouponsRepository;
 import SpringClass.shop.repository.Coupon.UserCouponsRepository;
 import SpringClass.shop.security.SecurityUtils;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -30,7 +31,7 @@ public class CouponService {
     private final CouponsRepository couponsRepository;
     private final UserCouponsRepository userCouponsRepository;
 
-    @jakarta.transaction.Transactional
+    @Transactional
     public CouponResponse createCoupon(CouponCreateRequest request) {
         Users user = securityUtils.getCurrentUser();
         if (user.getUserRole() != UserRole.ADMIN) {
@@ -53,7 +54,7 @@ public class CouponService {
         return CouponResponse.from(coupon);
     }
 
-    @jakarta.transaction.Transactional
+    @Transactional
     public UserCouponResponse registerCoupon(CouponRegisterRequest request) {
         Users user = securityUtils.getCurrentUser();
 
