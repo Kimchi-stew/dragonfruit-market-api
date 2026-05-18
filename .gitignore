@@ -37,11 +37,12 @@ out/
 .vscode/
 
 # application properties
-src/main/resources/application.properties
-src/main/resources/application-local.properties
+src/main/resources/application.yml
+src/main/resources/application-local.yml
 
 # docker-compose
 docker-compose.yml
 
+bfg-1.15.0.jar
 # claude
 .claude/
