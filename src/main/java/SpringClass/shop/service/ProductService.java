@@ -85,6 +85,7 @@ public class ProductService {
 
         // 카테고리 저장
         ProductCategories productCategories = ProductCategories.builder()
+                .id(new ProductCategoryId())
                 .product(savedProduct)
                 .category(categories)
                 .build();
