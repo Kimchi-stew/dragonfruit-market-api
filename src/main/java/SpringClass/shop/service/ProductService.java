@@ -120,12 +120,12 @@ public class ProductService {
                 .wished(false) // 신규 상품이므로
                 .category(request.getCategory())
                 .stock(savedProduct.getStock())
-                .images(savedProduct.getImages().stream()
-                        .map(ProductImages::getImageUrl)
-                        .collect(Collectors.toList()))
+                .images(savedProduct.getImages() != null
+                        ? savedProduct.getImages().stream().map(ProductImages::getImageUrl).collect(Collectors.toList())
+                        : List.of())
                 .createdAt(savedProduct.getCreatedAt())
                 .updatedAt(savedProduct.getUpdatedAt())
-                .rating(null) // 리뷰가 없으므로 평균 평점에 null
+                .rating(null)
                 .build();
     }
 
