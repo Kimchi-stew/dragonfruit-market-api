@@ -4,15 +4,13 @@
 
 # 용과마켓 (Dragonfruit Market)
 
-### 판매자가 직접 상점·상품을 등록하고 구매자는 AI 개인화 추천으로 원하는 상품을 탐색할 수 있는 <br>커머스 플랫폼
+### 판매자가 직접 상점·상품을 등록하고 구매자는 AI 개인화 추천으로 원하는 상품을 탐색할 수 있는 커머스 플랫폼
 
 <img src="https://raw.githubusercontent.com/yoonjeonggg/readme-assets/main/dragonfruit-market/%EC%9A%A9%EA%B3%BC%EB%A7%88%EC%BC%93_%EB%AA%A9%EC%97%85.png" width="800">
 
 </div>
 
 <br>
-
----
 
 ## 프로젝트 소개
 
@@ -22,8 +20,6 @@
 - 전체 리팩토링 및 TossPayments · 소셜 로그인 · AI 상품 추천 기능 추가로 실무 수준의 커머스 백엔드 경험
 
 <br>
-
----
 
 ## 개발 동기
 
@@ -35,8 +31,6 @@
 **완성도 있는 커머스 플랫폼**을 만들고자 노력했습니다.
 
 <br>
-
----
 
 ## 팀 구성
 
@@ -50,8 +44,6 @@
 </div>
 
 <br>
-
----
 
 ## 1. 개발 기간 및 작업 관리
 
@@ -69,8 +61,6 @@
 
 <br>
 
----
-
 ## 2. 개발 환경
 
 - **Backend** : Java 21, Spring Boot 3.5.7, MySQL, Redis
@@ -83,8 +73,6 @@
 - **결제** : TossPayments
 
 <br>
-
----
 
 ## 3. 기술 스택
 
@@ -132,8 +120,6 @@
 
 <br>
 
----
-
 ## 4. ☁️ 서비스 아키텍처
 
 <div align="center">
@@ -142,8 +128,6 @@
 
 <br>
 
----
-
 ## 5. 🗄 ERD
 
 <div align="center">
@@ -151,8 +135,6 @@
 </div>
 
 <br>
-
----
 
 ## 6. 📁 프로젝트 구조
 
@@ -173,8 +155,6 @@ src/main/java/.../
 ```
 
 <br>
-
----
 
 ## 7. 역할 분담
 
@@ -197,8 +177,6 @@ src/main/java/.../
 - QueryDSL 동적 쿼리로 가격순 · 인기순 · 최신순 정렬 및 카테고리 · 성별 다중 조건 필터링 구현
 
 <br>
-
----
 
 ## 8. ✨ 주요 기능
 
@@ -245,8 +223,6 @@ src/main/java/.../
 
 <br>
 
----
-
 ## 9. ▶️ 시연 영상
 
 ### 판매자 — 로그인 · 상점 등록 · 상품 등록
@@ -278,8 +254,6 @@ src/main/java/.../
 </div>
 
 <br>
-
----
 
 ## 10. 🚨 성능 개선 및 트러블슈팅
 
@@ -334,8 +308,6 @@ src/main/java/.../
 
 <br>
 
----
-
 ## 11. 🚀 Getting Started
 
 ```bash
@@ -370,8 +342,6 @@ java -jar build/libs/*.jar
 
 <br>
 
----
-
 ## 12. 🧪 테스트
 
 서비스 레이어 단위 테스트 **125개** 작성 (Mockito 기반)
@@ -383,8 +353,6 @@ java -jar build/libs/*.jar
 대상: `AuthService` `CartService` `CouponService` `OrderService` `PaymentService` `ProductService` `ReviewService` `InquiryService` `SellerService` `UserService` `AdminService`
 
 <br>
-
----
 
 ## 13. 🔁 CI/CD
 
