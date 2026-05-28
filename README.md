@@ -369,5 +369,5 @@ GitHub Actions → Gradle 빌드 → Docker 이미지 빌드 → Docker Hub 푸�
 <div align="center">
   <img src="https://raw.githubusercontent.com/yoonjeonggg/readme-assets/main/dragonfruit-market/%EC%9A%A9%EA%B3%BC.png" width="60">
   <br>
-  <sub>2025 개인 프로젝트 · 용과마켓</sub>
+  <sub>2025 스프링부트 프로젝트 · 용과마켓</sub>
 </div>
