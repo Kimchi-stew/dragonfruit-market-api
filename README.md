@@ -4,7 +4,7 @@
 
 # 용과마켓 (Dragonfruit Market)
 
-### 판매자가 직접 상점·상품을 등록하고 구매자는 AI 개인화 추천으로 원하는 상품을 탐색할 수 있는 커머스 플랫폼
+### 판매자가 직접 상점·상품을 등록하고 구매자는 AI 개인화 추천으로 원하는 상품을 탐색할 수 있는 <br>커머스 플랫폼
 
 <img src="https://raw.githubusercontent.com/yoonjeonggg/readme-assets/main/dragonfruit-market/%EC%9A%A9%EA%B3%BC%EB%A7%88%EC%BC%93_%EB%AA%A9%EC%97%85.png" width="800">
 
@@ -88,26 +88,6 @@
 
 ## 3. 기술 스택
 
-### 기술 선정 이유
-
-#### Spring SSE (Server-Sent Events)
-- 주문 접수 · 배송 상태 변경 · 문의 답변 등 **서버→클라이언트 단방향 알림**에 적합한 구조로 WebSocket 대비 구현 복잡도를 낮추면서 실시간 알림을 구현했습니다.
-
-#### Redis
-- 이메일 인증 코드의 **TTL(만료 시간) 관리**와 JWT 리프레시 토큰 저장에 활용해 인메모리 기반의 빠른 처리를 구현했습니다.
-
-#### QueryDSL
-- 가격순 · 인기순 · 최신순 정렬 및 카테고리 · 성별 **다중 조건 동적 필터링** 구현에 적합해 도입했습니다.
-
-#### TossPayments
-- 국내 커머스 환경에 최적화된 결제 SDK로, 결제 준비 · 승인 · 실패 · 취소 플로우를 안정적으로 구현할 수 있었습니다.
-
-> 📎 [기술 스택을 선정한 이유](https://www.notion.so/36d0aa80477f8026a868d9d1043cee79?pvs=21)
-
-<br>
-
-### 기술 스택 상세
-
 <div align="center">
   <img src="https://raw.githubusercontent.com/yoonjeonggg/readme-assets/main/dragonfruit-market/%EC%9A%A9%EA%B3%BC%EB%A7%88%EC%BC%93_%ED%94%84%EB%A0%88%EC%9E%84%EC%9B%8C%ED%81%AC.png" alt="프레임워크" width="800">
 </div>
@@ -131,6 +111,24 @@
 | CI/CD | GitHub Actions |
 | API Docs | Swagger (SpringDoc OpenAPI 3) |
 | Collaboration | <img src="https://raw.githubusercontent.com/yoonjeonggg/readme-assets/main/stacks/github_icon.png" width="16"> Github, Notion |
+
+<br>
+
+### 기술 선정 이유
+
+#### Spring SSE (Server-Sent Events)
+- 주문 접수 · 배송 상태 변경 · 문의 답변 등 **서버→클라이언트 단방향 알림**에 적합한 구조로 WebSocket 대비 구현 복잡도를 낮추면서 실시간 알림을 구현했습니다.
+
+#### Redis
+- 이메일 인증 코드의 **TTL(만료 시간) 관리**와 JWT 리프레시 토큰 저장에 활용해 인메모리 기반의 빠른 처리를 구현했습니다.
+
+#### QueryDSL
+- 가격순 · 인기순 · 최신순 정렬 및 카테고리 · 성별 **다중 조건 동적 필터링** 구현에 적합해 도입했습니다.
+
+#### TossPayments
+- 국내 커머스 환경에 최적화된 결제 SDK로, 결제 준비 · 승인 · 실패 · 취소 플로우를 안정적으로 구현할 수 있었습니다.
+
+> 📎 [기술 스택을 선정한 이유](https://www.notion.so/36d0aa80477f8026a868d9d1043cee79?pvs=21)
 
 <br>
 
