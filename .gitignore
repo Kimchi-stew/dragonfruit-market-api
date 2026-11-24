@@ -46,3 +46,4 @@ docker-compose.yml
 bfg-1.15.0.jar
 # claude
 .claude/
+bfg-work/
